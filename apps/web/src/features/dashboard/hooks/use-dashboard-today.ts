@@ -15,6 +15,10 @@ function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
+export function invalidateDashboardCache(userId: string) {
+  cache.delete(`${userId}:${todayKey()}`);
+}
+
 export function useDashboardToday() {
   const { session } = useAuth();
   const date = useMemo(todayKey, []);

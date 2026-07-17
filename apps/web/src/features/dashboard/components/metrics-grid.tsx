@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { DashboardToday, DashboardMetric } from '../types/dashboard.types';
 import { MetricCard } from './metric-card';
 
@@ -64,7 +65,13 @@ export function MetricsGrid({ dashboard }: { dashboard: DashboardToday }) {
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
-          <MetricCard key={metric.id} metric={metric} />
+          <Link
+            key={metric.id}
+            to={`/${metric.id === 'calories' ? 'meals' : metric.id}`}
+            className="block transition-transform hover:scale-[1.02]"
+          >
+            <MetricCard metric={metric} />
+          </Link>
         ))}
       </div>
     </section>
