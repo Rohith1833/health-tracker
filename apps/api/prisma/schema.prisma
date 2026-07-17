@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AppUser {
+  id             String    @id @default(uuid()) @db.Uuid
+  supabaseUserId String    @unique @map("supabase_user_id") @db.Uuid
+  email          String    @unique @db.VarChar(255)
+  displayName    String?   @map("display_name") @db.VarChar(150)
+  avatarUrl      String?   @map("avatar_url") @db.Text
+  authProvider   String    @default("google") @map("auth_provider") @db.VarChar(50)
+  status         String    @default("active") @db.VarChar(30)
+  lastLoginAt    DateTime? @map("last_login_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  profile              UserProfile?
+  settings             UserSetting?
+  weightLogs           WeightLog[]
+  bmiLogs              BmiLog[]
+  waterLogs            WaterLog[]
+  sleepLogs            SleepLog[]
+  workoutSessions      WorkoutSession[]
+  mealLogs             MealLog[]
+  checklistCompletions ChecklistCompletion[]
+
+  @@map("app_users")
+}
+
+model UserProfile {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @unique @map("user_id") @db.Uuid
+  heightCm         Decimal?  @map("height_cm") @db.Decimal(5, 2)
+  targetWeightKg   Decimal?  @map("target_weight_kg") @db.Decimal(5, 2)
+  timezone         String    @default("UTC") @db.VarChar(80)
+  profileCompleted Boolean   @default(false) @map("profile_completed")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model UserSetting {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @unique @map("user_id") @db.Uuid
+  dailyWaterGoalMl      Int       @default(2500) @map("daily_water_goal_ml")
+  dailyCalorieGoal      Int?      @map("daily_calorie_goal")
+  dailySleepGoalMinutes Int       @default(480) @map("daily_sleep_goal_minutes")
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt             DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model WeightLog {
+  id       String   @id @default(uuid()) @db.Uuid
+  userId   String   @map("user_id") @db.Uuid
+  weightKg          Decimal  @map("weight_kg") @db.Decimal(5, 2)
+  bodyFatPercentage Decimal? @map("body_fat_percentage") @db.Decimal(5, 2)
+  muscleMassKg      Decimal? @map("muscle_mass_kg") @db.Decimal(5, 2)
+  loggedAt          DateTime @map("logged_at") @db.Timestamptz(6)
+  logDate  DateTime @map("log_date") @db.Date
+  notes    String?  @db.Text
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, logDate])
+  @@index([userId, loggedAt])
+  @@map("weight_logs")
+}
+
+model BmiLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  bmiValue    Decimal  @map("bmi_value") @db.Decimal(5, 2)
+  bmiCategory String   @map("bmi_category") @db.VarChar(50)
+  loggedAt    DateTime @map("logged_at") @db.Timestamptz(6)
+  logDate     DateTime @map("log_date") @db.Date
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, logDate])
+  @@map("bmi_logs")
+}
+
+model WaterLog {
+  id       String   @id @default(uuid()) @db.Uuid
+  userId   String   @map("user_id") @db.Uuid
+  amountMl Int      @map("amount_ml")
+  loggedAt DateTime @map("logged_at") @db.Timestamptz(6)
+  logDate  DateTime @map("log_date") @db.Date
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, logDate])
+  @@map("water_logs")
+}
+
+model SleepLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  durationMinutes Int      @map("duration_minutes")
+  qualityRating   Int?     @map("quality_rating") @db.SmallInt
+  logDate         DateTime @map("log_date") @db.Date
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, logDate])
+  @@map("sleep_logs")
+}
+
+model WorkoutSession {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  durationMinutes Int?     @map("duration_minutes")
+  caloriesBurned  Int?     @map("calories_burned")
+  logDate         DateTime @map("log_date") @db.Date
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, logDate])
+  @@map("workout_sessions")
+}
+
+model MealLog {
+  id        String      @id @default(uuid()) @db.Uuid
+  userId    String      @map("user_id") @db.Uuid
+  mealType  String      @map("meal_type") @db.VarChar(50)
+  logDate   DateTime    @map("log_date") @db.Date
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime?   @map("deleted_at") @db.Timestamptz(6)
+
+  user    AppUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries MealEntry[]
+
+  @@index([userId, logDate])
+  @@map("meal_logs")
+}
+
+model MealEntry {
+  id        String  @id @default(uuid()) @db.Uuid
+  mealLogId String  @map("meal_log_id") @db.Uuid
+  calories  Decimal @default(0) @db.Decimal(8, 2)
+  proteinG  Decimal @default(0) @map("protein_g") @db.Decimal(8, 2)
+  carbsG    Decimal @default(0) @map("carbs_g") @db.Decimal(8, 2)
+  fatG      Decimal @default(0) @map("fat_g") @db.Decimal(8, 2)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  mealLog MealLog @relation(fields: [mealLogId], references: [id], onDelete: Cascade)
+
+  @@index([mealLogId])
+  @@map("meal_entries")
+}
+
+model ChecklistCompletion {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  completionDate DateTime @map("completion_date") @db.Date
+  isCompleted    Boolean  @default(false) @map("is_completed")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, completionDate])
+  @@map("checklist_completions")
+}
+
+
