@@ -5,6 +5,7 @@ import { BmiPage } from '@/features/bmi/pages/bmi-page';
 import { DashboardPage } from '@/features/dashboard/pages/dashboard-page';
 import { WeightPage } from '@/features/weight/pages/weight-page';
 import { WaterPage } from '@/pages/water-page';
+import { SleepPage } from '@/pages/sleep-page';
 import { ProtectedLayout } from '@/layouts/app-shell/protected-layout';
 import { AuthCallbackPage } from '@/pages/auth-callback-page';
 import { LoginPage } from '@/pages/login-page';
@@ -27,8 +28,9 @@ export function AppRouter() {
           <Route path="/weight" element={<WeightPage />} />
           <Route path="/bmi" element={<BmiPage />} />
           <Route path="/water" element={<WaterPage />} />
+          <Route path="/sleep" element={<SleepPage />} />
           {appRoutes
-            .filter((route) => !['/dashboard', '/weight', '/bmi', '/water'].includes(route.path))
+            .filter((route) => !['/dashboard', '/weight', '/bmi', '/water', '/sleep'].includes(route.path))
             .map((route) => (
               <Route
                 key={route.path}
