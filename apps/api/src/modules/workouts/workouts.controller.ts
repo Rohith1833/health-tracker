@@ -1,7 +1,12 @@
 import type { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import * as workoutsService from './workouts.service.js';
-import { startWorkoutSchema, addExerciseSchema, updateSetSchema, finishWorkoutSchema } from './workouts.schema.js';
+import {
+  startWorkoutSchema,
+  addExerciseSchema,
+  updateSetSchema,
+  finishWorkoutSchema,
+} from './workouts.schema.js';
 
 export const getActiveWorkout = async (req: Request, res: Response, next: NextFunction) => {
   try {

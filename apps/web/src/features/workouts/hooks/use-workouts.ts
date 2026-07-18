@@ -63,7 +63,15 @@ export function useAddExercise() {
   const token = session?.access_token;
 
   return useMutation({
-    mutationFn: ({ workoutId, exerciseId, order }: { workoutId: string; exerciseId: string; order: number }) => {
+    mutationFn: ({
+      workoutId,
+      exerciseId,
+      order,
+    }: {
+      workoutId: string;
+      exerciseId: string;
+      order: number;
+    }) => {
       if (!token) throw new Error('Unauthorized');
       return api.addExercise(token, workoutId, { exerciseId, order });
     },
@@ -176,7 +184,8 @@ export function useFinishWorkout() {
     onSuccess: () => {
       queryClient.setQueryData(['activeWorkout'], null);
       queryClient.invalidateQueries({ queryKey: ['workoutHistory'] });
-      // Invalidate dashboard metrics as well
+      // Refresh active enrollment so program pointer advances
+      queryClient.invalidateQueries({ queryKey: ['workoutPrograms', 'active'] });
     },
   });
 }

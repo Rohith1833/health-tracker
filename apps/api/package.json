@@ -8,7 +8,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit --pretty false",
-    "seed-exercises": "tsx prisma/seed-exercises.ts"
+    "seed-exercises": "tsx prisma/seed-exercises.ts",
+    "seed-programs": "tsx prisma/seed-programs.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.12.0",

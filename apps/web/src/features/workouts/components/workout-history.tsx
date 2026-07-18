@@ -3,14 +3,24 @@ import { Dumbbell, Calendar, Clock, Flame, ChevronRight, Search, X } from 'lucid
 import { useWorkoutHistory } from '../hooks/use-workouts';
 import type { WorkoutSession } from '../types/workout.types';
 
-const dateFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
-const datetimeFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+const datetimeFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+});
 
 export function WorkoutHistory() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const limit = 10;
-  
+
   const { data, isLoading } = useWorkoutHistory(page, limit);
   const [selectedWorkout, setSelectedWorkout] = useState<WorkoutSession | null>(null);
 
@@ -26,12 +36,12 @@ export function WorkoutHistory() {
 
   const workouts = data?.items || [];
   const meta = data?.meta;
-  
-  const filteredWorkouts = workouts.filter(w => {
+
+  const filteredWorkouts = workouts.filter((w) => {
     if (!search) return true;
     const s = search.toLowerCase();
     const title = `${dateFormatter.format(new Date(w.startTime))} Workout`.toLowerCase();
-    const hasExercise = w.exercises?.some(ex => ex.exercise.name.toLowerCase().includes(s));
+    const hasExercise = w.exercises?.some((ex) => ex.exercise.name.toLowerCase().includes(s));
     return title.includes(s) || hasExercise;
   });
 
@@ -57,13 +67,14 @@ export function WorkoutHistory() {
             </div>
             <p className="font-medium text-foreground">No history found</p>
             <p className="text-sm mt-1 max-w-sm">
-              We couldn't find any completed workouts matching your search. Try a different term or finish a new session!
+              We couldn't find any completed workouts matching your search. Try a different term or
+              finish a new session!
             </p>
           </div>
         ) : (
           filteredWorkouts.map((workout) => (
-            <button 
-              key={workout.id} 
+            <button
+              key={workout.id}
               onClick={() => setSelectedWorkout(workout)}
               className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl border bg-card hover:border-primary/50 hover:bg-primary/5 transition-all text-left group"
             >
@@ -93,7 +104,10 @@ export function WorkoutHistory() {
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {workout.exercises.slice(0, 3).map((ex) => (
-                      <span key={ex.id} className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium border border-border/50">
+                      <span
+                        key={ex.id}
+                        className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium border border-border/50"
+                      >
                         {ex.exercise.name}
                       </span>
                     ))}
@@ -103,7 +117,9 @@ export function WorkoutHistory() {
                       </span>
                     )}
                     {workout.exercises.length === 0 && (
-                      <span className="text-xs text-muted-foreground italic">No exercises recorded</span>
+                      <span className="text-xs text-muted-foreground italic">
+                        No exercises recorded
+                      </span>
                     )}
                   </div>
                 </div>
@@ -120,7 +136,7 @@ export function WorkoutHistory() {
       {meta && meta.totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-6">
           <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             className="rounded-md border bg-background px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
           >
@@ -130,7 +146,7 @@ export function WorkoutHistory() {
             Page {page} of {meta.totalPages}
           </span>
           <button
-            onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+            onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
             disabled={page === meta.totalPages}
             className="rounded-md border bg-background px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
           >
@@ -141,20 +157,22 @@ export function WorkoutHistory() {
 
       {/* Detailed View Modal */}
       {selectedWorkout && (
-        <WorkoutDetailModal 
-          workout={selectedWorkout} 
-          onClose={() => setSelectedWorkout(null)} 
-        />
+        <WorkoutDetailModal workout={selectedWorkout} onClose={() => setSelectedWorkout(null)} />
       )}
     </div>
   );
 }
 
-function WorkoutDetailModal({ workout, onClose }: { workout: WorkoutSession, onClose: () => void }) {
+function WorkoutDetailModal({
+  workout,
+  onClose,
+}: {
+  workout: WorkoutSession;
+  onClose: () => void;
+}) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 sm:p-6 animate-in fade-in duration-200">
       <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl border bg-card shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        
         {/* Modal Header */}
         <div className="border-b bg-muted/30 p-4 sm:p-6 flex items-start justify-between">
           <div>
@@ -178,8 +196,8 @@ function WorkoutDetailModal({ workout, onClose }: { workout: WorkoutSession, onC
               ) : null}
             </div>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="rounded-full p-2 bg-background border hover:bg-muted transition-colors shrink-0"
           >
             <X className="size-4 text-muted-foreground" />
@@ -188,7 +206,6 @@ function WorkoutDetailModal({ workout, onClose }: { workout: WorkoutSession, onC
 
         {/* Modal Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-background space-y-6">
-          
           {workout.notes && (
             <div className="rounded-lg bg-muted/50 p-4 border text-sm">
               <p className="font-semibold mb-1 text-muted-foreground uppercase text-xs">Notes</p>
@@ -201,8 +218,8 @@ function WorkoutDetailModal({ workout, onClose }: { workout: WorkoutSession, onC
               <Dumbbell className="size-5 text-primary" />
               Exercises Logged
             </h3>
-            
-            {(!workout.exercises || workout.exercises.length === 0) ? (
+
+            {!workout.exercises || workout.exercises.length === 0 ? (
               <div className="text-center p-6 border rounded-xl text-muted-foreground text-sm italic">
                 No exercises were recorded for this session.
               </div>
@@ -217,10 +234,12 @@ function WorkoutDetailModal({ workout, onClose }: { workout: WorkoutSession, onC
                       {workoutExercise.exercise.name}
                     </h4>
                   </div>
-                  
+
                   <div className="p-3 sm:p-4">
-                    {(!workoutExercise.sets || workoutExercise.sets.length === 0) ? (
-                      <p className="text-sm text-muted-foreground italic text-center">No sets recorded.</p>
+                    {!workoutExercise.sets || workoutExercise.sets.length === 0 ? (
+                      <p className="text-sm text-muted-foreground italic text-center">
+                        No sets recorded.
+                      </p>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left">
@@ -234,12 +253,8 @@ function WorkoutDetailModal({ workout, onClose }: { workout: WorkoutSession, onC
                           <tbody className="divide-y">
                             {workoutExercise.sets.map((set) => (
                               <tr key={set.id} className="hover:bg-muted/10 transition-colors">
-                                <td className="py-2 px-3 font-medium">
-                                  {set.setNumber}
-                                </td>
-                                <td className="py-2 px-3 text-right">
-                                  {set.weight ?? '-'}
-                                </td>
+                                <td className="py-2 px-3 font-medium">{set.setNumber}</td>
+                                <td className="py-2 px-3 text-right">{set.weight ?? '-'}</td>
                                 <td className="py-2 px-3 text-right font-medium text-primary">
                                   {set.reps ?? '-'}
                                 </td>
@@ -258,14 +273,13 @@ function WorkoutDetailModal({ workout, onClose }: { workout: WorkoutSession, onC
 
         {/* Modal Footer */}
         <div className="border-t bg-muted/10 p-4 sm:px-6 flex justify-end">
-          <button 
+          <button
             onClick={onClose}
             className="rounded-md bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             Close
           </button>
         </div>
-
       </div>
     </div>
   );

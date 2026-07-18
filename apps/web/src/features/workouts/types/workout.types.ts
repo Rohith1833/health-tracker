@@ -31,13 +31,3 @@ export interface WorkoutSession {
   logDate: string;
   exercises: WorkoutExercise[];
 }
-
-export interface WorkoutSessionHistoryResponse {
-  data: WorkoutSession[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}

@@ -36,9 +36,15 @@ export function AppRouter() {
           {appRoutes
             .filter(
               (route) =>
-                !['/dashboard', '/weight', '/bmi', '/water', '/sleep', '/exercises', '/workouts'].includes(
-                  route.path,
-                ),
+                ![
+                  '/dashboard',
+                  '/weight',
+                  '/bmi',
+                  '/water',
+                  '/sleep',
+                  '/exercises',
+                  '/workouts',
+                ].includes(route.path),
             )
             .map((route) => (
               <Route

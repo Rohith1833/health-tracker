@@ -1,6 +1,11 @@
 import { prisma } from '../../lib/prisma.js';
 import type { z } from 'zod';
-import type { startWorkoutSchema, addExerciseSchema, updateSetSchema, finishWorkoutSchema } from './workouts.schema.js';
+import type {
+  startWorkoutSchema,
+  addExerciseSchema,
+  updateSetSchema,
+  finishWorkoutSchema,
+} from './workouts.schema.js';
 
 function toDateOnly(value: string) {
   return new Date(value);
@@ -68,7 +73,7 @@ export async function cancelWorkout(userId: string, workoutId: string) {
 export async function addExercise(
   userId: string,
   workoutId: string,
-  input: z.infer<typeof addExerciseSchema>
+  input: z.infer<typeof addExerciseSchema>,
 ) {
   const session = await prisma.workoutSession.findFirst({
     where: { id: workoutId, userId, endTime: null, deletedAt: null },
@@ -136,7 +141,7 @@ export async function updateSet(
   workoutId: string,
   workoutExerciseId: string,
   setId: string,
-  input: z.infer<typeof updateSetSchema>
+  input: z.infer<typeof updateSetSchema>,
 ) {
   const session = await prisma.workoutSession.findFirst({
     where: { id: workoutId, userId, endTime: null, deletedAt: null },
@@ -158,7 +163,12 @@ export async function updateSet(
   });
 }
 
-export async function removeSet(userId: string, workoutId: string, workoutExerciseId: string, setId: string) {
+export async function removeSet(
+  userId: string,
+  workoutId: string,
+  workoutExerciseId: string,
+  setId: string,
+) {
   const session = await prisma.workoutSession.findFirst({
     where: { id: workoutId, userId, endTime: null, deletedAt: null },
   });
@@ -192,7 +202,7 @@ export async function removeSet(userId: string, workoutId: string, workoutExerci
 export async function finishWorkout(
   userId: string,
   workoutId: string,
-  input: z.infer<typeof finishWorkoutSchema>
+  input: z.infer<typeof finishWorkoutSchema>,
 ) {
   const session = await prisma.workoutSession.findFirst({
     where: { id: workoutId, userId, endTime: null, deletedAt: null },
@@ -211,13 +221,16 @@ export async function finishWorkout(
   }
 
   const endTime = new Date(input.endTime);
-  const durationSeconds = Math.max(0, Math.floor((endTime.getTime() - session.startTime.getTime()) / 1000));
+  const durationSeconds = Math.max(
+    0,
+    Math.floor((endTime.getTime() - session.startTime.getTime()) / 1000),
+  );
   const durationMinutes = Math.round(durationSeconds / 60);
 
   // Calculate calories burned
   // Formula: Calories = MET * weight_in_kg * (duration_in_hours)
   let caloriesBurned = 0;
-  
+
   const latestWeight = await prisma.weightLog.findFirst({
     where: { userId, deletedAt: null },
     orderBy: { loggedAt: 'desc' },
@@ -231,7 +244,6 @@ export async function finishWorkout(
       // Actually, if we just apportion it equally or calculate total METs average?
       // A simple way: calculate the active time for this exercise by summing set durations, or just take average MET of the whole workout
       // The user just requested: Calculate calories from Exercise MET values and user's weight
-      
       // Let's calculate total MET minutes for the workout.
       // Easiest approach: Sum of (MET * weight * (exercise_time_in_hours))
       // Since we don't strictly enforce exercise_time, we can either:
@@ -241,14 +253,15 @@ export async function finishWorkout(
     }
   }
 
-  const metsArray = session.exercises.map(ex => ex.exercise.mets).filter(m => m !== null) as number[];
-  const avgMet = metsArray.length > 0 
-    ? metsArray.reduce((sum, met) => sum + met, 0) / metsArray.length 
-    : 3.0; // Default MET for light exercise
+  const metsArray = session.exercises
+    .map((ex) => ex.exercise.mets)
+    .filter((m) => m !== null) as number[];
+  const avgMet =
+    metsArray.length > 0 ? metsArray.reduce((sum, met) => sum + met, 0) / metsArray.length : 3.0; // Default MET for light exercise
 
   caloriesBurned = Math.round(avgMet * weightKg * (durationMinutes / 60));
 
-  return prisma.workoutSession.update({
+  const finished = await prisma.workoutSession.update({
     where: { id: workoutId },
     data: {
       endTime,
@@ -266,9 +279,36 @@ export async function finishWorkout(
       },
     },
   });
+
+  // Advance program pointer if this session was part of a program
+  if (finished.userWorkoutProgramId) {
+    const enrollment = await prisma.userWorkoutProgram.findUnique({
+      where: { id: finished.userWorkoutProgramId },
+      include: {
+        program: {
+          include: {
+            weeks: {
+              orderBy: { weekNumber: 'asc' },
+              include: { days: { orderBy: { dayNumber: 'asc' } } },
+            },
+          },
+        },
+      },
+    });
+    if (enrollment && enrollment.status === 'ACTIVE') {
+      const { advanceProgramPointer } =
+        await import('../workout-programs/workout-programs.service.js');
+      await advanceProgramPointer(enrollment);
+    }
+  }
+
+  return finished;
 }
 
-export async function getWorkoutHistory(userId: string, options: { limit?: number; page?: number } = {}) {
+export async function getWorkoutHistory(
+  userId: string,
+  options: { limit?: number; page?: number } = {},
+) {
   const limit = Math.min(options.limit ?? 50, 100);
   const page = Math.max(options.page ?? 1, 1);
   const skip = (page - 1) * limit;
@@ -284,9 +324,9 @@ export async function getWorkoutHistory(userId: string, options: { limit?: numbe
         exercises: {
           include: {
             exercise: true,
-          }
-        }
-      }
+          },
+        },
+      },
     }),
   ]);
 

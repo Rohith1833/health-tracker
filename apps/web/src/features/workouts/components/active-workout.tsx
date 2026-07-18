@@ -1,21 +1,43 @@
 import { useState, useEffect } from 'react';
-import { Play, Square, Plus, Trash2, Dumbbell, Clock, Flame, Calendar, Loader2, X, Search, Check, AlertCircle } from 'lucide-react';
-import { 
-  useActiveWorkout, 
-  useStartWorkout, 
-  useFinishWorkout, 
+import {
+  Play,
+  Square,
+  Plus,
+  Trash2,
+  Dumbbell,
+  Clock,
+  Flame,
+  Calendar,
+  Loader2,
+  X,
+  Search,
+  Check,
+  AlertCircle,
+} from 'lucide-react';
+import {
+  useActiveWorkout,
+  useStartWorkout,
+  useFinishWorkout,
   useCancelWorkout,
   useAddExercise,
   useRemoveExercise,
   useAddSet,
   useUpdateSet,
   useRemoveSet,
-  useWorkoutHistory
+  useWorkoutHistory,
 } from '../hooks/use-workouts';
 import type { WorkoutExercise, WorkoutSet } from '../types/workout.types';
-import { useExercises, useExerciseCategories, useExerciseDifficulties } from '@/features/exercises/hooks/use-exercises';
+import {
+  useExercises,
+  useExerciseCategories,
+  useExerciseDifficulties,
+} from '@/features/exercises/hooks/use-exercises';
 
-const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
 
 function formatDuration(seconds: number) {
   const h = Math.floor(seconds / 3600);
@@ -39,7 +61,7 @@ export function ActiveWorkout() {
   useEffect(() => {
     if (!activeWorkout) return;
     const startTime = new Date(activeWorkout.startTime).getTime();
-    
+
     const interval = setInterval(() => {
       setElapsed(Math.max(0, Math.floor((Date.now() - startTime) / 1000)));
     }, 1000);
@@ -58,15 +80,15 @@ export function ActiveWorkout() {
 
   if (!activeWorkout) {
     return (
-      <EmptyWorkoutState 
-        isStarting={startMutation.isPending} 
+      <EmptyWorkoutState
+        isStarting={startMutation.isPending}
         onStart={() => {
           const now = new Date();
           startMutation.mutate({
             logDate: now.toISOString().slice(0, 10),
             startTime: now.toISOString(),
           });
-        }} 
+        }}
       />
     );
   }
@@ -107,7 +129,7 @@ export function ActiveWorkout() {
 
       {/* Exercises List */}
       <div className="space-y-6">
-        {(!activeWorkout.exercises || activeWorkout.exercises.length === 0) ? (
+        {!activeWorkout.exercises || activeWorkout.exercises.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed bg-card p-12 text-center">
             <div className="mb-4 rounded-full bg-muted p-3">
               <Dumbbell className="size-6 text-muted-foreground" />
@@ -119,10 +141,10 @@ export function ActiveWorkout() {
           </div>
         ) : (
           activeWorkout.exercises.map((exercise, index) => (
-            <ExerciseCard 
-              key={exercise.id} 
-              workoutId={activeWorkout.id} 
-              exercise={exercise} 
+            <ExerciseCard
+              key={exercise.id}
+              workoutId={activeWorkout.id}
+              exercise={exercise}
               index={index}
             />
           ))
@@ -142,10 +164,10 @@ export function ActiveWorkout() {
 
       {/* Modals */}
       {showExerciseModal && (
-        <ExerciseSelectModal 
-          workoutId={activeWorkout.id} 
+        <ExerciseSelectModal
+          workoutId={activeWorkout.id}
           currentOrder={activeWorkout.exercises?.length || 0}
-          onClose={() => setShowExerciseModal(false)} 
+          onClose={() => setShowExerciseModal(false)}
         />
       )}
 
@@ -156,12 +178,15 @@ export function ActiveWorkout() {
           confirmText="Finish Workout"
           cancelText="Keep Going"
           onConfirm={() => {
-            finishMutation.mutate({
-              workoutId: activeWorkout.id,
-              data: { endTime: new Date().toISOString() }
-            }, {
-              onSuccess: () => setShowEndDialog(false)
-            });
+            finishMutation.mutate(
+              {
+                workoutId: activeWorkout.id,
+                data: { endTime: new Date().toISOString() },
+              },
+              {
+                onSuccess: () => setShowEndDialog(false),
+              },
+            );
           }}
           onCancel={() => setShowEndDialog(false)}
           isPending={finishMutation.isPending}
@@ -192,7 +217,7 @@ export function ActiveWorkout() {
           cancelText="Keep Going"
           onConfirm={() => {
             cancelMutation.mutate(activeWorkout.id, {
-              onSuccess: () => setShowCancelDialog(false)
+              onSuccess: () => setShowCancelDialog(false),
             });
           }}
           onCancel={() => setShowCancelDialog(false)}
@@ -249,14 +274,26 @@ function EmptyWorkoutState({ isStarting, onStart }: { isStarting: boolean; onSta
         onClick={onStart}
         disabled={isStarting}
       >
-        {isStarting ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" fill="currentColor" />}
+        {isStarting ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <Play className="size-4" fill="currentColor" />
+        )}
         {isStarting ? 'Starting...' : 'Start New Workout'}
       </button>
     </div>
   );
 }
 
-function ExerciseCard({ workoutId, exercise, index }: { workoutId: string, exercise: WorkoutExercise, index: number }) {
+function ExerciseCard({
+  workoutId,
+  exercise,
+  index,
+}: {
+  workoutId: string;
+  exercise: WorkoutExercise;
+  index: number;
+}) {
   const removeExerciseMutation = useRemoveExercise();
   const addSetMutation = useAddSet();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -278,21 +315,21 @@ function ExerciseCard({ workoutId, exercise, index }: { workoutId: string, exerc
           <Trash2 className="size-4" />
         </button>
       </div>
-      
+
       <div className="p-4 sm:p-5 space-y-3">
-        {(!exercise.sets || exercise.sets.length === 0) ? (
+        {!exercise.sets || exercise.sets.length === 0 ? (
           <div className="text-center py-4 text-sm text-muted-foreground italic">
             No sets added yet.
           </div>
         ) : (
           <div className="space-y-3">
             {exercise.sets.map((set, setIdx) => (
-              <SetRow 
-                key={set.id} 
-                workoutId={workoutId} 
-                exerciseId={exercise.id} 
-                set={set} 
-                index={setIdx} 
+              <SetRow
+                key={set.id}
+                workoutId={workoutId}
+                exerciseId={exercise.id}
+                set={set}
+                index={setIdx}
               />
             ))}
           </div>
@@ -304,7 +341,11 @@ function ExerciseCard({ workoutId, exercise, index }: { workoutId: string, exerc
             disabled={addSetMutation.isPending}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-md bg-muted/50 px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
           >
-            {addSetMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+            {addSetMutation.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Plus className="size-4" />
+            )}
             Add Set
           </button>
         </div>
@@ -325,10 +366,20 @@ function ExerciseCard({ workoutId, exercise, index }: { workoutId: string, exerc
   );
 }
 
-function SetRow({ workoutId, exerciseId, set, index }: { workoutId: string, exerciseId: string, set: WorkoutSet, index: number }) {
+function SetRow({
+  workoutId,
+  exerciseId,
+  set,
+  index,
+}: {
+  workoutId: string;
+  exerciseId: string;
+  set: WorkoutSet;
+  index: number;
+}) {
   const updateSetMutation = useUpdateSet();
   const removeSetMutation = useRemoveSet();
-  
+
   const [weight, setWeight] = useState(set.weight ?? '');
   const [reps, setReps] = useState(set.reps ?? '');
   const [isDone, setIsDone] = useState(false);
@@ -342,22 +393,26 @@ function SetRow({ workoutId, exerciseId, set, index }: { workoutId: string, exer
   const handleUpdate = () => {
     const w = parseFloat(weight as string);
     const r = parseInt(reps as string, 10);
-    
+
     updateSetMutation.mutate({
       workoutId,
       exerciseId,
       setId: set.id,
-      data: { 
+      data: {
         weight: isNaN(w) ? null : w,
         reps: isNaN(r) ? null : r,
-      }
+      },
     });
   };
 
   return (
-    <div className={`group relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 rounded-lg border p-3 transition-colors ${isDone ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-background'}`}>
+    <div
+      className={`group relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 rounded-lg border p-3 transition-colors ${isDone ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-background'}`}
+    >
       <div className="flex items-center justify-between sm:w-16">
-        <span className="text-xs font-semibold uppercase text-muted-foreground">Set {index + 1}</span>
+        <span className="text-xs font-semibold uppercase text-muted-foreground">
+          Set {index + 1}
+        </span>
         {/* Mobile delete button */}
         <button
           onClick={() => removeSetMutation.mutate({ workoutId, exerciseId, setId: set.id })}
@@ -366,23 +421,25 @@ function SetRow({ workoutId, exerciseId, set, index }: { workoutId: string, exer
           <X className="size-4" />
         </button>
       </div>
-      
+
       <div className="flex flex-1 items-center gap-4">
         <div className="flex-1 space-y-1">
-          <label className="text-[10px] font-medium uppercase text-muted-foreground">Weight (kg)</label>
+          <label className="text-[10px] font-medium uppercase text-muted-foreground">
+            Weight (kg)
+          </label>
           <input
             type="number"
             min="0"
             step="any"
             value={weight}
-            onChange={e => setWeight(e.target.value)}
+            onChange={(e) => setWeight(e.target.value)}
             onBlur={handleUpdate}
             className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
             placeholder="-"
             disabled={isDone}
           />
         </div>
-        
+
         <div className="flex-1 space-y-1">
           <label className="text-[10px] font-medium uppercase text-muted-foreground">Reps</label>
           <input
@@ -390,7 +447,7 @@ function SetRow({ workoutId, exerciseId, set, index }: { workoutId: string, exer
             min="0"
             step="1"
             value={reps}
-            onChange={e => setReps(e.target.value)}
+            onChange={(e) => setReps(e.target.value)}
             onBlur={handleUpdate}
             className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
             placeholder="-"
@@ -402,8 +459,8 @@ function SetRow({ workoutId, exerciseId, set, index }: { workoutId: string, exer
           <button
             onClick={() => setIsDone(!isDone)}
             className={`flex size-9 items-center justify-center rounded-md transition-all ${
-              isDone 
-                ? 'bg-emerald-500 text-white hover:bg-emerald-600' 
+              isDone
+                ? 'bg-emerald-500 text-white hover:bg-emerald-600'
                 : 'bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground'
             }`}
           >
@@ -423,25 +480,33 @@ function SetRow({ workoutId, exerciseId, set, index }: { workoutId: string, exer
   );
 }
 
-function ExerciseSelectModal({ workoutId, currentOrder, onClose }: { workoutId: string, currentOrder: number, onClose: () => void }) {
+function ExerciseSelectModal({
+  workoutId,
+  currentOrder,
+  onClose,
+}: {
+  workoutId: string;
+  currentOrder: number;
+  onClose: () => void;
+}) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string>('');
   const [difficulty, setDifficulty] = useState<string>('');
-  
+
   const addExerciseMutation = useAddExercise();
-  
+
   const { data: categories } = useExerciseCategories();
   const { data: difficulties } = useExerciseDifficulties();
-  const { data, isLoading } = useExercises({ 
-    page: 1, 
-    limit: 100, 
+  const { data, isLoading } = useExercises({
+    page: 1,
+    limit: 100,
     search: search || undefined,
     category: category ? (category as any) : undefined,
-    difficulty: difficulty ? (difficulty as any) : undefined
+    difficulty: difficulty ? (difficulty as any) : undefined,
   });
 
   const exercises = data?.data || [];
-  
+
   // Sort favorites first
   const sortedExercises = [...exercises].sort((a, b) => {
     if (a.isFavorite === b.isFavorite) return 0;
@@ -457,7 +522,7 @@ function ExerciseSelectModal({ workoutId, currentOrder, onClose }: { workoutId: 
             <X className="size-5 text-muted-foreground" />
           </button>
         </div>
-        
+
         <div className="border-b p-4 sm:px-6 space-y-4 bg-muted/10">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -477,7 +542,9 @@ function ExerciseSelectModal({ workoutId, currentOrder, onClose }: { workoutId: 
             >
               <option value="">All Categories</option>
               {categories?.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
             <select
@@ -487,7 +554,9 @@ function ExerciseSelectModal({ workoutId, currentOrder, onClose }: { workoutId: 
             >
               <option value="">All Difficulties</option>
               {difficulties?.map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
           </div>
@@ -509,17 +578,20 @@ function ExerciseSelectModal({ workoutId, currentOrder, onClose }: { workoutId: 
             </div>
           ) : (
             <div className="space-y-2">
-              {sortedExercises.map(ex => (
+              {sortedExercises.map((ex) => (
                 <button
                   key={ex.id}
                   onClick={() => {
-                    addExerciseMutation.mutate({
-                      workoutId,
-                      exerciseId: ex.id,
-                      order: currentOrder + 1,
-                    }, {
-                      onSuccess: () => onClose()
-                    });
+                    addExerciseMutation.mutate(
+                      {
+                        workoutId,
+                        exerciseId: ex.id,
+                        order: currentOrder + 1,
+                      },
+                      {
+                        onSuccess: () => onClose(),
+                      },
+                    );
                   }}
                   disabled={addExerciseMutation.isPending}
                   className="group w-full flex items-center justify-between p-3 sm:p-4 rounded-lg border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all text-left disabled:opacity-50 disabled:pointer-events-none"
@@ -538,7 +610,9 @@ function ExerciseSelectModal({ workoutId, currentOrder, onClose }: { workoutId: 
                       <span>•</span>
                       <span className="capitalize">{ex.difficulty.toLowerCase()}</span>
                       <span>•</span>
-                      <span className="truncate max-w-[150px] sm:max-w-[300px]">{ex.targetMuscles.join(', ')}</span>
+                      <span className="truncate max-w-[150px] sm:max-w-[300px]">
+                        {ex.targetMuscles.join(', ')}
+                      </span>
                     </div>
                   </div>
                   <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -554,16 +628,16 @@ function ExerciseSelectModal({ workoutId, currentOrder, onClose }: { workoutId: 
   );
 }
 
-function ConfirmDialog({ 
-  title, 
-  description, 
-  confirmText, 
-  cancelText = "Cancel", 
-  onConfirm, 
-  onCancel, 
+function ConfirmDialog({
+  title,
+  description,
+  confirmText,
+  cancelText = 'Cancel',
+  onConfirm,
+  onCancel,
   isPending,
-  variant = "primary",
-  children
+  variant = 'primary',
+  children,
 }: {
   title: string;
   description: string;
@@ -572,19 +646,19 @@ function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
   isPending?: boolean;
-  variant?: "primary" | "destructive";
+  variant?: 'primary' | 'destructive';
   children?: React.ReactNode;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-xl animate-in zoom-in-95 duration-200">
-        <h3 className={`text-xl font-semibold mb-2 ${variant === 'destructive' ? 'text-destructive' : ''}`}>
+        <h3
+          className={`text-xl font-semibold mb-2 ${variant === 'destructive' ? 'text-destructive' : ''}`}
+        >
           {title}
         </h3>
-        <p className="text-sm text-muted-foreground">
-          {description}
-        </p>
-        
+        <p className="text-sm text-muted-foreground">{description}</p>
+
         {children}
 
         <div className="flex justify-end gap-3 mt-6">
@@ -598,8 +672,8 @@ function ConfirmDialog({
           <button
             onClick={onConfirm}
             className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
-              variant === 'destructive' 
-                ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' 
+              variant === 'destructive'
+                ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
                 : 'bg-primary text-primary-foreground hover:bg-primary/90'
             }`}
             disabled={isPending}

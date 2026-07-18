@@ -21,7 +21,7 @@ export async function getActiveWorkout(accessToken: string): Promise<WorkoutSess
 
 export async function startWorkout(
   accessToken: string,
-  data: { logDate: string; startTime: string }
+  data: { logDate: string; startTime: string },
 ): Promise<WorkoutSession> {
   const response = await fetch(`${env.apiBaseUrl}/workouts/start`, {
     method: 'POST',
@@ -31,7 +31,7 @@ export async function startWorkout(
     },
     body: JSON.stringify(data),
   });
-  
+
   const payload = await response.json();
   if (!response.ok) {
     throw new Error(payload.error || 'Failed to start workout');
@@ -50,7 +50,7 @@ export async function cancelWorkout(accessToken: string, workoutId: string): Pro
 export async function addExercise(
   accessToken: string,
   workoutId: string,
-  data: { exerciseId: string; order: number }
+  data: { exerciseId: string; order: number },
 ): Promise<WorkoutExercise> {
   const response = await fetch(`${env.apiBaseUrl}/workouts/${workoutId}/add-exercise`, {
     method: 'POST',
@@ -67,7 +67,7 @@ export async function addExercise(
 export async function removeExercise(
   accessToken: string,
   workoutId: string,
-  exerciseId: string
+  exerciseId: string,
 ): Promise<void> {
   const response = await fetch(`${env.apiBaseUrl}/workouts/${workoutId}/exercises/${exerciseId}`, {
     method: 'DELETE',
@@ -79,12 +79,15 @@ export async function removeExercise(
 export async function addSet(
   accessToken: string,
   workoutId: string,
-  exerciseId: string
+  exerciseId: string,
 ): Promise<WorkoutSet> {
-  const response = await fetch(`${env.apiBaseUrl}/workouts/${workoutId}/exercises/${exerciseId}/sets`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  const response = await fetch(
+    `${env.apiBaseUrl}/workouts/${workoutId}/exercises/${exerciseId}/sets`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (!response.ok) throw new Error('Failed to add set');
   return response.json();
 }
@@ -94,16 +97,19 @@ export async function updateSet(
   workoutId: string,
   exerciseId: string,
   setId: string,
-  data: Partial<WorkoutSet>
+  data: Partial<WorkoutSet>,
 ): Promise<WorkoutSet> {
-  const response = await fetch(`${env.apiBaseUrl}/workouts/${workoutId}/exercises/${exerciseId}/sets/${setId}`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
+  const response = await fetch(
+    `${env.apiBaseUrl}/workouts/${workoutId}/exercises/${exerciseId}/sets/${setId}`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     },
-    body: JSON.stringify(data),
-  });
+  );
   if (!response.ok) throw new Error('Failed to update set');
   return response.json();
 }
@@ -112,19 +118,22 @@ export async function removeSet(
   accessToken: string,
   workoutId: string,
   exerciseId: string,
-  setId: string
+  setId: string,
 ): Promise<void> {
-  const response = await fetch(`${env.apiBaseUrl}/workouts/${workoutId}/exercises/${exerciseId}/sets/${setId}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  const response = await fetch(
+    `${env.apiBaseUrl}/workouts/${workoutId}/exercises/${exerciseId}/sets/${setId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (!response.ok) throw new Error('Failed to remove set');
 }
 
 export async function finishWorkout(
   accessToken: string,
   workoutId: string,
-  data: { endTime: string; notes?: string }
+  data: { endTime: string; notes?: string },
 ): Promise<WorkoutSession> {
   const response = await fetch(`${env.apiBaseUrl}/workouts/${workoutId}/end`, {
     method: 'POST',
@@ -141,7 +150,7 @@ export async function finishWorkout(
 export async function getWorkoutHistory(
   accessToken: string,
   page = 1,
-  limit = 20
+  limit = 20,
 ): Promise<{ items: WorkoutSession[]; meta: any }> {
   const params = new URLSearchParams({
     page: page.toString(),
