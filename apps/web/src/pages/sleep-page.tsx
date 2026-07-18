@@ -67,9 +67,7 @@ export function SleepPage() {
       <section className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-medium text-primary">Sleep tracking</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-normal">
-            Track your sleep
-          </h1>
+          <h1 className="mt-1 text-3xl font-semibold tracking-normal">Track your sleep</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Log your daily sleep duration and quality.
           </p>

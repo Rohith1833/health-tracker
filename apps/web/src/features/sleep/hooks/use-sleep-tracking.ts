@@ -121,11 +121,16 @@ export function useSleepTracking() {
       setLogs((prev) =>
         prev.map((log) =>
           log.id === id
-            ? { ...log, durationMinutes: input.durationMinutes, qualityRating: input.qualityRating ?? null, logDate: input.logDate }
-            : log
-        )
+            ? {
+                ...log,
+                durationMinutes: input.durationMinutes,
+                qualityRating: input.qualityRating ?? null,
+                logDate: input.logDate,
+              }
+            : log,
+        ),
       );
-      
+
       setIsMutating(true);
       setError(null);
       try {
@@ -149,7 +154,7 @@ export function useSleepTracking() {
 
       // Optimistic update
       setLogs((prev) => prev.filter((log) => log.id !== id));
-      
+
       setIsMutating(true);
       setError(null);
       try {

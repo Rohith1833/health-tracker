@@ -45,10 +45,7 @@ export async function getSleepSummary(accessToken: string): Promise<SleepSummary
   return payload.data;
 }
 
-export async function createSleepLog(
-  accessToken: string,
-  input: SleepLogInput,
-): Promise<SleepLog> {
+export async function createSleepLog(accessToken: string, input: SleepLogInput): Promise<SleepLog> {
   const response = await fetch(`${env.apiBaseUrl}/sleep-logs`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },

@@ -27,7 +27,9 @@ export async function getLogs(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+      res
+        .status(401)
+        .json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
       return;
     }
 
@@ -46,7 +48,9 @@ export async function getSummary(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+      res
+        .status(401)
+        .json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
       return;
     }
 
@@ -62,7 +66,9 @@ export async function createLog(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+      res
+        .status(401)
+        .json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
       return;
     }
 
@@ -79,7 +85,9 @@ export async function updateLog(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+      res
+        .status(401)
+        .json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
       return;
     }
 
@@ -97,7 +105,9 @@ export async function deleteLog(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+      res
+        .status(401)
+        .json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
       return;
     }
 

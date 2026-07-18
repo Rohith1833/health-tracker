@@ -3,11 +3,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SleepLog } from '../types/sleep.types';
 import type { SleepLogInput } from '../types/sleep.schema';
-import {
-  sleepFormSchema,
-  type SleepFormInput,
-  type SleepFormValues,
-} from '../types/sleep.schema';
+import { sleepFormSchema, type SleepFormInput, type SleepFormValues } from '../types/sleep.schema';
 
 type SleepFormProps = {
   editingLog: SleepLog | null;
@@ -51,7 +47,7 @@ export function SleepForm({ editingLog, isSubmitting, onCancelEdit, onSubmit }: 
   async function submit(values: SleepFormValues) {
     const durationMinutes = parseInt(values.hours, 10) * 60 + parseInt(values.minutes, 10);
     const qualityRating = values.qualityRating ? parseInt(values.qualityRating, 10) : undefined;
-    
+
     await onSubmit({
       durationMinutes,
       qualityRating,
@@ -115,15 +111,15 @@ export function SleepForm({ editingLog, isSubmitting, onCancelEdit, onSubmit }: 
             />
           </label>
         </div>
-        {(formState.errors.hours || formState.errors.minutes) ? (
-            <span className="mt-1 block text-xs text-destructive">
-              Please enter valid hours and minutes.
-            </span>
+        {formState.errors.hours || formState.errors.minutes ? (
+          <span className="mt-1 block text-xs text-destructive">
+            Please enter valid hours and minutes.
+          </span>
         ) : null}
 
         <label className="block text-sm font-medium">
           Quality (1-5)
-          <select 
+          <select
             className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             {...register('qualityRating')}
           >

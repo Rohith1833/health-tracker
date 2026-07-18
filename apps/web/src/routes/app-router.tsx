@@ -30,7 +30,10 @@ export function AppRouter() {
           <Route path="/water" element={<WaterPage />} />
           <Route path="/sleep" element={<SleepPage />} />
           {appRoutes
-            .filter((route) => !['/dashboard', '/weight', '/bmi', '/water', '/sleep'].includes(route.path))
+            .filter(
+              (route) =>
+                !['/dashboard', '/weight', '/bmi', '/water', '/sleep'].includes(route.path),
+            )
             .map((route) => (
               <Route
                 key={route.path}

@@ -45,7 +45,10 @@ export function SleepHistory({ logs, isMutating, onDelete, onEdit }: SleepHistor
           const isTemp = log.id.startsWith('temp-');
 
           return (
-            <li key={log.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+            <li
+              key={log.id}
+              className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+            >
               <div>
                 <p className="font-medium">{formatDuration(log.durationMinutes)}</p>
                 <div className="flex gap-2 text-xs text-muted-foreground">

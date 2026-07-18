@@ -17,9 +17,20 @@ export function SleepSummaryCards({ summary }: { summary: SleepSummary }) {
   };
 
   const cards = [
-    { label: 'Weekly Average', value: summary.averageDurationMinutes > 0 ? formatDuration(summary.averageDurationMinutes) : 'No logs', isMultiline: false },
+    {
+      label: 'Weekly Average',
+      value:
+        summary.averageDurationMinutes > 0
+          ? formatDuration(summary.averageDurationMinutes)
+          : 'No logs',
+      isMultiline: false,
+    },
     { label: 'Sleep Goal', value: formatDuration(summary.goalMinutes), isMultiline: false },
-    { label: 'Average Quality', value: getQualityDisplay(summary.averageQuality), isMultiline: true },
+    {
+      label: 'Average Quality',
+      value: getQualityDisplay(summary.averageQuality),
+      isMultiline: true,
+    },
   ];
 
   return (

@@ -1,13 +1,5 @@
 import { useMemo } from 'react';
-import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-} from 'recharts';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
 import type { SleepLog } from '../types/sleep.types';
 
 type SleepChartProps = {
@@ -21,7 +13,7 @@ export function SleepChart({ logs }: SleepChartProps) {
     );
 
     const aggregated = new Map<string, number>();
-    recentLogs.forEach(log => {
+    recentLogs.forEach((log) => {
       const d = new Date(log.logDate);
       const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
       aggregated.set(dateStr, (aggregated.get(dateStr) || 0) + log.durationMinutes);
@@ -48,7 +40,12 @@ export function SleepChart({ logs }: SleepChartProps) {
       <div className="h-[250px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="currentColor"
+              opacity={0.1}
+            />
             <XAxis
               dataKey="dateStr"
               axisLine={false}
@@ -71,14 +68,13 @@ export function SleepChart({ logs }: SleepChartProps) {
                 color: 'hsl(var(--foreground))',
               }}
               formatter={(value: any) => [`${value} hrs`, 'Duration']}
-              labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold', marginBottom: '4px' }}
+              labelStyle={{
+                color: 'hsl(var(--foreground))',
+                fontWeight: 'bold',
+                marginBottom: '4px',
+              }}
             />
-            <Bar
-              dataKey="hours"
-              fill="hsl(var(--primary))"
-              radius={[4, 4, 0, 0]}
-              maxBarSize={50}
-            />
+            <Bar dataKey="hours" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} maxBarSize={50} />
           </BarChart>
         </ResponsiveContainer>
       </div>

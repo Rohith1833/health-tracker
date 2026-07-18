@@ -65,7 +65,9 @@ export async function getSleepSummary(userId: string) {
 
   const averageDurationMinutes =
     weeklyLogs.length > 0
-      ? Math.round(weeklyLogs.reduce((acc, log) => acc + log.durationMinutes, 0) / weeklyLogs.length)
+      ? Math.round(
+          weeklyLogs.reduce((acc, log) => acc + log.durationMinutes, 0) / weeklyLogs.length,
+        )
       : 0;
 
   const averageQuality =
