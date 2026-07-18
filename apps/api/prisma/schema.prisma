@@ -29,6 +29,8 @@ model AppUser {
   workoutSessions      WorkoutSession[]
   mealLogs             MealLog[]
   checklistCompletions ChecklistCompletion[]
+  exerciseFavorites    ExerciseFavorite[]
+  userWorkoutPrograms  UserWorkoutProgram[]
 
   @@map("app_users")
 }
@@ -133,19 +135,62 @@ model SleepLog {
 }
 
 model WorkoutSession {
-  id              String   @id @default(uuid()) @db.Uuid
-  userId          String   @map("user_id") @db.Uuid
-  durationMinutes Int?     @map("duration_minutes")
-  caloriesBurned  Int?     @map("calories_burned")
-  logDate         DateTime @map("log_date") @db.Date
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+  id                   String    @id @default(uuid()) @db.Uuid
+  userId               String    @map("user_id") @db.Uuid
+  userWorkoutProgramId String?   @map("user_workout_program_id") @db.Uuid
+  programDayId         String?   @map("program_day_id") @db.Uuid
+  startTime            DateTime  @map("start_time") @db.Timestamptz(6)
+  endTime              DateTime? @map("end_time") @db.Timestamptz(6)
+  durationMinutes      Int?      @map("duration_minutes")
+  caloriesBurned       Int?      @map("calories_burned")
+  notes                String?   @db.Text
+  logDate              DateTime  @map("log_date") @db.Date
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt            DateTime? @map("deleted_at") @db.Timestamptz(6)
 
-  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               AppUser             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userWorkoutProgram UserWorkoutProgram? @relation(fields: [userWorkoutProgramId], references: [id], onDelete: SetNull)
+  exercises          WorkoutExercise[]
 
   @@index([userId, logDate])
+  @@index([userWorkoutProgramId])
   @@map("workout_sessions")
+}
+
+model WorkoutExercise {
+  id               String   @id @default(uuid()) @db.Uuid
+  workoutSessionId String   @map("workout_session_id") @db.Uuid
+  exerciseId       String   @map("exercise_id") @db.Uuid
+  order            Int
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  workoutSession WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+  exercise       Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  sets           WorkoutSet[]
+
+  @@index([workoutSessionId])
+  @@index([exerciseId])
+  @@map("workout_exercises")
+}
+
+model WorkoutSet {
+  id                String   @id @default(uuid()) @db.Uuid
+  workoutExerciseId String   @map("workout_exercise_id") @db.Uuid
+  setNumber         Int      @map("set_number")
+  reps              Int?
+  weight            Decimal? @db.Decimal(5, 2)
+  duration          Int?
+  restTime          Int?     @map("rest_time")
+  notes             String?  @db.Text
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  workoutExercise WorkoutExercise @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
+
+  @@index([workoutExerciseId])
+  @@map("workout_sets")
 }
 
 model MealLog {
@@ -194,4 +239,134 @@ model ChecklistCompletion {
   @@map("checklist_completions")
 }
 
+enum ExerciseCategory {
+  CARDIO
+  STRENGTH
+  FLEXIBILITY
+  BALANCE
+  PLYOMETRICS
+}
 
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model Exercise {
+  id               String           @id @default(uuid()) @db.Uuid
+  name             String
+  description      String
+  category         ExerciseCategory
+  difficulty       Difficulty
+  equipment        String[]         @default([])
+  targetMuscles    String[]         @default([]) @map("target_muscles")
+  secondaryMuscles String[]         @default([]) @map("secondary_muscles")
+  mets             Float?
+  instructions     String           @db.Text
+  tips             String?          @db.Text
+  imageUrl         String?          @map("image_url")
+  videoUrl         String?          @map("video_url")
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  favorites        ExerciseFavorite[]
+  workoutExercises WorkoutExercise[]
+  programExercises WorkoutProgramExercise[]
+
+  @@map("exercises")
+}
+
+model ExerciseFavorite {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  exerciseId String   @map("exercise_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user     AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+  @@map("exercise_favorites")
+}
+
+enum ProgramGoal {
+  WEIGHT_LOSS
+  MUSCLE_GAIN
+  STRENGTH
+  ENDURANCE
+  GENERAL_FITNESS
+}
+
+model WorkoutProgram {
+  id          String      @id @default(uuid()) @db.Uuid
+  title       String
+  description String
+  difficulty  Difficulty
+  goal        ProgramGoal
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  weeks        WorkoutProgramWeek[]
+  userPrograms UserWorkoutProgram[]
+
+  @@map("workout_programs")
+}
+
+model WorkoutProgramWeek {
+  id         String   @id @default(uuid()) @db.Uuid
+  programId  String   @map("program_id") @db.Uuid
+  weekNumber Int      @map("week_number")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  program WorkoutProgram      @relation(fields: [programId], references: [id], onDelete: Cascade)
+  days    WorkoutProgramDay[]
+
+  @@map("workout_program_weeks")
+}
+
+model WorkoutProgramDay {
+  id         String   @id @default(uuid()) @db.Uuid
+  weekId     String   @map("week_id") @db.Uuid
+  dayNumber  Int      @map("day_number")
+  title      String?
+  isRestDay  Boolean  @default(false) @map("is_rest_day")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  week      WorkoutProgramWeek       @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  exercises WorkoutProgramExercise[]
+
+  @@map("workout_program_days")
+}
+
+model WorkoutProgramExercise {
+  id         String   @id @default(uuid()) @db.Uuid
+  dayId      String   @map("day_id") @db.Uuid
+  exerciseId String   @map("exercise_id") @db.Uuid
+  order      Int
+  sets       Int
+  reps       Int?
+  restTime   Int?     @map("rest_time")
+  
+  day      WorkoutProgramDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  exercise Exercise          @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@map("workout_program_exercises")
+}
+
+model UserWorkoutProgram {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  programId   String   @map("program_id") @db.Uuid
+  currentWeek Int      @default(1) @map("current_week")
+  currentDay  Int      @default(1) @map("current_day")
+  status      String   @default("ACTIVE") // ACTIVE, COMPLETED
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user            AppUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program         WorkoutProgram   @relation(fields: [programId], references: [id], onDelete: Cascade)
+  workoutSessions WorkoutSession[]
+
+  @@map("user_workout_programs")
+}
