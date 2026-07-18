@@ -76,6 +76,14 @@ export const appRoutes = [
     showInBottomNav: false,
   },
   {
+    path: '/exercises',
+    label: 'Exercises',
+    title: 'Exercise Library',
+    icon: Dumbbell,
+    showInSidebar: true,
+    showInBottomNav: false,
+  },
+  {
     path: '/food',
     label: 'Food',
     title: 'Food Tracker',
