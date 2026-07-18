@@ -31,10 +31,22 @@ export function ExercisesPage() {
   const { mutate: toggleFav, isPending: isFavMutating } = useToggleFavorite();
 
   // Reset to page 1 whenever filters change
-  const handleSearchChange = useCallback((v: string) => { setSearch(v); setPage(1); }, []);
-  const handleCategoryChange = useCallback((v: ExerciseCategory | '') => { setCategory(v); setPage(1); }, []);
-  const handleDifficultyChange = useCallback((v: Difficulty | '') => { setDifficulty(v); setPage(1); }, []);
-  const handleMuscleGroupChange = useCallback((v: string) => { setMuscleGroup(v); setPage(1); }, []);
+  const handleSearchChange = useCallback((v: string) => {
+    setSearch(v);
+    setPage(1);
+  }, []);
+  const handleCategoryChange = useCallback((v: ExerciseCategory | '') => {
+    setCategory(v);
+    setPage(1);
+  }, []);
+  const handleDifficultyChange = useCallback((v: Difficulty | '') => {
+    setDifficulty(v);
+    setPage(1);
+  }, []);
+  const handleMuscleGroupChange = useCallback((v: string) => {
+    setMuscleGroup(v);
+    setPage(1);
+  }, []);
   const handleReset = useCallback(() => {
     setSearch('');
     setCategory('');
@@ -126,10 +138,7 @@ export function ExercisesPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <nav
-          aria-label="Exercise pagination"
-          className="flex items-center justify-center gap-2"
-        >
+        <nav aria-label="Exercise pagination" className="flex items-center justify-center gap-2">
           <button
             type="button"
             aria-label="Previous page"

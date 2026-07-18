@@ -40,10 +40,7 @@ export async function fetchExercises(
   if (options.sortBy) params.set('sortBy', options.sortBy);
   if (options.sortOrder) params.set('sortOrder', options.sortOrder);
 
-  return apiFetch<PaginatedExercises>(
-    `/exercises?${params.toString()}`,
-    token,
-  );
+  return apiFetch<PaginatedExercises>(`/exercises?${params.toString()}`, token);
 }
 
 export async function fetchExerciseById(token: string, id: string): Promise<Exercise> {

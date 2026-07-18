@@ -11,8 +11,7 @@ import type { ExerciseCategory, Difficulty, GetExercisesOptions } from '../types
 export const exerciseKeys = {
   all: ['exercises'] as const,
   lists: () => [...exerciseKeys.all, 'list'] as const,
-  list: (filters: Omit<GetExercisesOptions, never>) =>
-    [...exerciseKeys.lists(), filters] as const,
+  list: (filters: Omit<GetExercisesOptions, never>) => [...exerciseKeys.lists(), filters] as const,
   categories: () => [...exerciseKeys.all, 'categories'] as const,
   difficulties: () => [...exerciseKeys.all, 'difficulties'] as const,
 };

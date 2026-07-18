@@ -20,8 +20,18 @@ function formatLabel(value: string): string {
 }
 
 const COMMON_MUSCLES = [
-  'Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 'Core',
-  'Quadriceps', 'Hamstrings', 'Glutes', 'Calves', 'Lats', 'Obliques',
+  'Chest',
+  'Back',
+  'Shoulders',
+  'Biceps',
+  'Triceps',
+  'Core',
+  'Quadriceps',
+  'Hamstrings',
+  'Glutes',
+  'Calves',
+  'Lats',
+  'Obliques',
 ];
 
 export function ExerciseFilters({

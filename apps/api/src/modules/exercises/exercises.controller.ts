@@ -1,6 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
 import * as exerciseService from './exercises.service.js';
-import { getExercisesQuerySchema, createExerciseSchema, updateExerciseSchema } from './exercises.schema.js';
+import {
+  getExercisesQuerySchema,
+  createExerciseSchema,
+  updateExerciseSchema,
+} from './exercises.schema.js';
 import { ExerciseCategory, Difficulty } from '@prisma/client';
 
 export const getExercises = async (req: Request, res: Response, next: NextFunction) => {

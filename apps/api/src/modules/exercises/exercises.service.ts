@@ -27,10 +27,7 @@ export async function getExercises(
     ...(category && { category }),
     ...(difficulty && { difficulty }),
     ...(muscleGroup && {
-      OR: [
-        { targetMuscles: { has: muscleGroup } },
-        { secondaryMuscles: { has: muscleGroup } },
-      ],
+      OR: [{ targetMuscles: { has: muscleGroup } }, { secondaryMuscles: { has: muscleGroup } }],
     }),
   };
 
