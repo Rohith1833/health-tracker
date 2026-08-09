@@ -17,12 +17,17 @@ export function ChecklistPreview({ dashboard }: { dashboard: DashboardToday }) {
   ];
 
   return (
-    <section className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold">Checklist</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Today's checklist progress</p>
-        </div>
+    <section className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-[0_2px_8px_rgba(0,0,0,0.01)] flex flex-col justify-between">
+      <div className="mb-5">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Routine Tasks
+        </span>
+        <h2 className="text-lg font-extrabold tracking-tight text-foreground mt-0.5">
+          Checklist Summary
+        </h2>
+        <p className="text-xs text-muted-foreground/90 font-medium mt-1">
+          Today's checklist progress
+        </p>
       </div>
 
       {hasChecklist ? (
@@ -33,17 +38,19 @@ export function ChecklistPreview({ dashboard }: { dashboard: DashboardToday }) {
             return (
               <div
                 key={item.id}
-                className="flex items-center gap-3 rounded-md border border-border bg-background p-3"
+                className="flex items-center gap-3 rounded-xl border border-border bg-background p-3.5 shadow-sm transition-all hover:bg-secondary/20"
               >
                 <Icon
                   className={
-                    item.completed ? 'size-5 text-primary' : 'size-5 text-muted-foreground'
+                    item.completed ? 'size-5 text-emerald-500' : 'size-5 text-muted-foreground/80'
                   }
                   aria-hidden="true"
                 />
                 <span
                   className={
-                    item.completed ? 'text-sm font-medium' : 'text-sm text-muted-foreground'
+                    item.completed
+                      ? 'text-xs font-semibold text-foreground'
+                      : 'text-xs text-muted-foreground font-medium'
                   }
                 >
                   {item.label}
@@ -53,7 +60,7 @@ export function ChecklistPreview({ dashboard }: { dashboard: DashboardToday }) {
           })}
         </div>
       ) : (
-        <p className="rounded-md border border-dashed border-border bg-background p-4 text-sm text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-border bg-background/50 p-4 text-xs font-medium text-muted-foreground text-center">
           No checklist completions found for today.
         </p>
       )}

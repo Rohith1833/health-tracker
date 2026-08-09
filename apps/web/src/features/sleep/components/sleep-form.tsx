@@ -65,62 +65,77 @@ export function SleepForm({ editingLog, isSubmitting, onCancelEdit, onSubmit }: 
   }
 
   return (
-    <section className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm">
-      <div className="mb-5">
-        <h2 className="text-lg font-semibold">{editingLog ? 'Edit sleep' : 'Log sleep'}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Record your sleep duration and quality.
+    <section className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-[0_2px_8px_rgba(0,0,0,0.01)] h-fit">
+      <div className="mb-6">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Log Entry
+        </span>
+        <h2 className="text-lg font-extrabold tracking-tight text-foreground mt-0.5">
+          {editingLog ? 'Edit Sleep Log' : 'Log Sleep'}
+        </h2>
+        <p className="text-xs text-muted-foreground/90 font-medium mt-1">
+          Record your sleep duration and sleep quality.
         </p>
       </div>
 
       <form className="space-y-4" onSubmit={(event) => void handleSubmit(submit)(event)}>
-        <label className="block text-sm font-medium">
-          Date
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            Log Date
+          </label>
           <input
-            className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all font-semibold"
             type="date"
             max={new Date().toISOString().slice(0, 10)}
             {...register('logDate')}
           />
           {formState.errors.logDate ? (
-            <span className="mt-1 block text-xs text-destructive">
+            <span className="block text-xs font-medium text-destructive">
               {formState.errors.logDate.message}
             </span>
           ) : null}
-        </label>
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <label className="block text-sm font-medium">
-            Hours
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Hours
+            </label>
             <input
-              className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all font-semibold"
               type="number"
               min="0"
               max="24"
+              placeholder="8"
               {...register('hours')}
             />
-          </label>
-          <label className="block text-sm font-medium">
-            Minutes
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Minutes
+            </label>
             <input
-              className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all font-semibold"
               type="number"
               min="0"
               max="59"
+              placeholder="00"
               {...register('minutes')}
             />
-          </label>
+          </div>
         </div>
         {formState.errors.hours || formState.errors.minutes ? (
-          <span className="mt-1 block text-xs text-destructive">
+          <span className="block text-xs font-medium text-destructive">
             Please enter valid hours and minutes.
           </span>
         ) : null}
 
-        <label className="block text-sm font-medium">
-          Quality (1-5)
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            Quality (1-5)
+          </label>
           <select
-            className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all font-semibold"
             {...register('qualityRating')}
           >
             <option value="">-- Optional --</option>
@@ -130,23 +145,23 @@ export function SleepForm({ editingLog, isSubmitting, onCancelEdit, onSubmit }: 
             <option value="4">4 - Good</option>
             <option value="5">5 - Excellent</option>
           </select>
-        </label>
+        </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 pt-2">
           <button
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-70"
+            className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
             type="submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Saving...' : editingLog ? 'Save changes' : 'Log sleep'}
+            {isSubmitting ? 'Saving...' : editingLog ? 'Save Changes' : 'Record Sleep'}
           </button>
           {editingLog ? (
             <button
-              className="rounded-md border border-border px-4 py-2 text-sm font-medium"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground hover:bg-secondary/40 transition-colors"
               type="button"
               onClick={onCancelEdit}
             >
-              Cancel
+              Cancel Edit
             </button>
           ) : null}
         </div>

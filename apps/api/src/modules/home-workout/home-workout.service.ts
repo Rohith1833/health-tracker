@@ -3,6 +3,7 @@ import { prisma } from '../../lib/prisma.js';
 import type { z } from 'zod';
 import type {
   listExercisesQuerySchema,
+  favoritesQuerySchema,
   startWorkoutSchema,
   finishWorkoutSchema,
 } from './home-workout.schema.js';
@@ -26,33 +27,78 @@ const PROGRAM_EXERCISES_INCLUDE = {
 
 // ── Exercises ─────────────────────────────────────────────────────────────────
 
-export async function listExercises(options: z.infer<typeof listExercisesQuerySchema>) {
-  const { page, limit, difficulty, bodyPart, muscleGroup, search } = options;
+export async function listExercises(
+  options: z.infer<typeof listExercisesQuerySchema>,
+  userId?: string,
+) {
+  const {
+    page,
+    limit,
+    difficulty,
+    bodyPart,
+    muscleGroup,
+    equipment,
+    search,
+    sortBy = 'name',
+    sortOrder = 'asc',
+  } = options;
   const skip = (page - 1) * limit;
 
   const where: Prisma.HomeExerciseWhereInput = {
     isActive: true,
-    ...(difficulty && { difficulty }),
-    ...(bodyPart && { bodyPart: { equals: bodyPart, mode: 'insensitive' } }),
-    ...(search && {
-      OR: [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-      ],
-    }),
-    ...(muscleGroup && {
-      muscleGroups: {
-        some: {
-          muscleGroup: {
-            OR: [
-              { slug: { equals: muscleGroup, mode: 'insensitive' } },
-              { name: { contains: muscleGroup, mode: 'insensitive' } },
-            ],
+  };
+
+  if (difficulty) {
+    where.difficulty = difficulty;
+  }
+
+  if (bodyPart) {
+    where.bodyPart = { equals: bodyPart, mode: 'insensitive' };
+  }
+
+  if (equipment) {
+    where.equipment = { equals: equipment, mode: 'insensitive' };
+  }
+
+  if (muscleGroup) {
+    where.muscleGroups = {
+      some: {
+        muscleGroup: {
+          OR: [
+            { slug: { equals: muscleGroup, mode: 'insensitive' } },
+            { name: { contains: muscleGroup, mode: 'insensitive' } },
+          ],
+        },
+      },
+    };
+  }
+
+  if (search) {
+    // Check if the search matches Difficulty enum
+    const difficultyMatch = Object.values(Difficulty).find(
+      (d) => d.toLowerCase() === search.toLowerCase(),
+    );
+
+    where.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+      { bodyPart: { contains: search, mode: 'insensitive' } },
+      { equipment: { contains: search, mode: 'insensitive' } },
+      ...(difficultyMatch ? [{ difficulty: difficultyMatch }] : []),
+      {
+        muscleGroups: {
+          some: {
+            muscleGroup: {
+              OR: [
+                { name: { contains: search, mode: 'insensitive' } },
+                { slug: { contains: search, mode: 'insensitive' } },
+              ],
+            },
           },
         },
       },
-    }),
-  };
+    ];
+  }
 
   const [total, exercises] = await Promise.all([
     prisma.homeExercise.count({ where }),
@@ -60,32 +106,152 @@ export async function listExercises(options: z.infer<typeof listExercisesQuerySc
       where,
       skip,
       take: limit,
-      orderBy: { name: 'asc' },
+      orderBy: { [sortBy]: sortOrder },
       include: {
         muscleGroups: {
           include: { muscleGroup: true },
         },
+        ...(userId && {
+          favorites: {
+            where: { userId },
+            select: { id: true },
+          },
+        }),
       },
     }),
   ]);
 
+  const mapped = exercises.map((ex) => ({
+    ...ex,
+    isFavorite: userId ? ex.favorites && ex.favorites.length > 0 : false,
+    favorites: undefined,
+  }));
+
   return {
-    data: exercises,
+    data: mapped,
     meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
   };
 }
 
-export async function getExerciseById(id: string) {
+export async function getExerciseById(id: string, userId?: string) {
   const exercise = await prisma.homeExercise.findFirst({
     where: { id, isActive: true },
     include: {
       muscleGroups: {
         include: { muscleGroup: true },
       },
+      ...(userId && {
+        favorites: {
+          where: { userId },
+          select: { id: true },
+        },
+      }),
     },
   });
 
-  return exercise;
+  if (!exercise) return null;
+
+  return {
+    ...exercise,
+    isFavorite: userId ? exercise.favorites && exercise.favorites.length > 0 : false,
+    favorites: undefined,
+  };
+}
+
+export async function getFavorites(userId: string, options: z.infer<typeof favoritesQuerySchema>) {
+  const { page, limit } = options;
+  const skip = (page - 1) * limit;
+
+  const where = {
+    userId,
+    exercise: {
+      isActive: true,
+    },
+  };
+
+  const [total, favorites] = await Promise.all([
+    prisma.homeExerciseFavorite.count({ where }),
+    prisma.homeExerciseFavorite.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        exercise: {
+          include: {
+            muscleGroups: {
+              include: { muscleGroup: true },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  const mapped = favorites.map((f) => ({
+    ...f.exercise,
+    isFavorite: true,
+  }));
+
+  return {
+    data: mapped,
+    meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+  };
+}
+
+export async function addFavorite(userId: string, exerciseId: string) {
+  const exercise = await prisma.homeExercise.findFirst({
+    where: { id: exerciseId, isActive: true },
+  });
+
+  if (!exercise) {
+    throw new Error('EXERCISE_NOT_FOUND');
+  }
+
+  const existing = await prisma.homeExerciseFavorite.findUnique({
+    where: {
+      userId_exerciseId: {
+        userId,
+        exerciseId,
+      },
+    },
+  });
+
+  if (existing) {
+    return { isFavorite: true };
+  }
+
+  await prisma.homeExerciseFavorite.create({
+    data: {
+      userId,
+      exerciseId,
+    },
+  });
+
+  return { isFavorite: true };
+}
+
+export async function removeFavorite(userId: string, exerciseId: string) {
+  const existing = await prisma.homeExerciseFavorite.findUnique({
+    where: {
+      userId_exerciseId: {
+        userId,
+        exerciseId,
+      },
+    },
+  });
+
+  if (!existing) {
+    return { isFavorite: false };
+  }
+
+  await prisma.homeExerciseFavorite.delete({
+    where: {
+      id: existing.id,
+    },
+  });
+
+  return { isFavorite: false };
 }
 
 // ── Programs ──────────────────────────────────────────────────────────────────
@@ -306,4 +472,69 @@ async function upsertStats(
       lastWorkoutDate: completedDateOnly,
     },
   });
+}
+
+export async function getRecommendations(userId: string) {
+  const [profile, latestWeight, stats] = await Promise.all([
+    prisma.appUser.findUnique({
+      where: { id: userId },
+      include: { profile: true },
+    }),
+    prisma.weightLog.findFirst({
+      where: { userId, deletedAt: null },
+      orderBy: { loggedAt: 'desc' },
+    }),
+    prisma.userWorkoutStats.findUnique({ where: { userId } }),
+  ]);
+
+  let goal: HomeWorkoutGoal = HomeWorkoutGoal.GENERAL_FITNESS;
+  let reason = 'This general fitness program helps build a balanced routine.';
+
+  if (profile?.profile?.targetWeightKg && latestWeight?.weightKg) {
+    const target = Number(profile.profile.targetWeightKg);
+    const current = Number(latestWeight.weightKg);
+
+    if (target < current) {
+      goal = HomeWorkoutGoal.WEIGHT_LOSS;
+      reason =
+        'To support your weight management goal, we recommend an active fat-burning routine.';
+    } else if (target > current) {
+      goal = HomeWorkoutGoal.STRENGTH;
+      reason =
+        'To support muscle building and strength goals, we recommend this resistance routine.';
+    }
+  }
+
+  let difficulty: Difficulty = Difficulty.BEGINNER;
+  if (stats && stats.totalWorkouts > 10) {
+    difficulty = Difficulty.ADVANCED;
+  } else if (stats && stats.totalWorkouts > 3) {
+    difficulty = Difficulty.INTERMEDIATE;
+  }
+
+  let program = await prisma.homeWorkoutProgram.findFirst({
+    where: { goal, difficulty, isActive: true },
+    include: PROGRAM_EXERCISES_INCLUDE,
+  });
+
+  if (!program) {
+    program = await prisma.homeWorkoutProgram.findFirst({
+      where: { difficulty, isActive: true },
+      include: PROGRAM_EXERCISES_INCLUDE,
+    });
+  }
+
+  if (!program) {
+    program = await prisma.homeWorkoutProgram.findFirst({
+      where: { isActive: true },
+      include: PROGRAM_EXERCISES_INCLUDE,
+    });
+  }
+
+  return {
+    recommendedProgram: program,
+    reason,
+    estimatedMinutes: program?.estimatedMinutes ?? 0,
+    estimatedCalories: program?.estimatedCalories ?? 0,
+  };
 }

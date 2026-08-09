@@ -19,7 +19,7 @@ export function WaterCustomAdd({ onAdd, isMutating }: WaterCustomAddProps) {
       return;
     }
     if (ml > 5000) {
-      setError('Amount cannot exceed 5000 ml at once.');
+      setError('Amount cannot exceed 5000 ml.');
       return;
     }
 
@@ -29,11 +29,24 @@ export function WaterCustomAdd({ onAdd, isMutating }: WaterCustomAddProps) {
   };
 
   return (
-    <section className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm">
-      <h2 className="mb-4 text-lg font-semibold">Custom Amount</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <label className="block text-sm font-medium">
-          Amount (ml)
+    <section className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+      <div className="mb-5">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Manual Logging
+        </span>
+        <h2 className="text-lg font-extrabold tracking-tight text-foreground mt-0.5">
+          Custom Amount
+        </h2>
+        <p className="text-xs text-muted-foreground/90 font-medium mt-1">
+          Specify an exact volume of water consumed.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            Volume (ml)
+          </label>
           <input
             type="number"
             value={amount}
@@ -42,18 +55,21 @@ export function WaterCustomAdd({ onAdd, isMutating }: WaterCustomAddProps) {
               setError(null);
             }}
             placeholder="e.g. 350"
-            className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all font-semibold"
             disabled={isMutating}
           />
-        </label>
-        {error && <span className="text-xs text-destructive">{error}</span>}
+          {error && (
+            <span className="block text-xs font-medium text-destructive mt-1">{error}</span>
+          )}
+        </div>
+
         <button
           type="submit"
           disabled={isMutating || !amount}
-          className="flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
         >
-          <Droplet className="size-4" />
-          {isMutating ? 'Adding...' : 'Add Water'}
+          <Droplet className="size-4 shrink-0" />
+          {isMutating ? 'Logging...' : 'Log Intake'}
         </button>
       </form>
     </section>

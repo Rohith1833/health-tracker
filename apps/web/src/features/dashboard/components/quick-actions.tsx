@@ -5,23 +5,29 @@ import type { QuickAction } from '../types/dashboard.types';
 const quickActions: QuickAction[] = [
   {
     id: 'log-water',
-    label: 'Water',
-    description: 'Add intake',
+    label: 'Water Intake',
+    description: 'Add water log',
     href: '/water',
     iconName: 'droplets',
   },
-  { id: 'log-meal', label: 'Meal', description: 'Track food', href: '/food', iconName: 'utensils' },
+  {
+    id: 'log-meal',
+    label: 'Nutrition',
+    description: 'Log meals',
+    href: '/food',
+    iconName: 'utensils',
+  },
   {
     id: 'start-workout',
-    label: 'Workout',
-    description: 'Start session',
+    label: 'Workouts',
+    description: 'Start player',
     href: '/workouts',
     iconName: 'dumbbell',
   },
   {
     id: 'log-weight',
-    label: 'Weight',
-    description: 'Record weight',
+    label: 'Weight Log',
+    description: 'Record progress',
     href: '/weight',
     iconName: 'plus',
   },
@@ -34,28 +40,70 @@ const icons = {
   plus: Plus,
 };
 
+const ACTION_THEMES: Record<string, { bg: string; text: string; hoverBg: string }> = {
+  'log-water': {
+    bg: 'bg-blue-500/10 dark:bg-blue-500/15',
+    text: 'text-blue-500',
+    hoverBg: 'group-hover:bg-blue-500 group-hover:text-white',
+  },
+  'log-meal': {
+    bg: 'bg-emerald-500/10 dark:bg-emerald-500/15',
+    text: 'text-emerald-500',
+    hoverBg: 'group-hover:bg-emerald-500 group-hover:text-white',
+  },
+  'start-workout': {
+    bg: 'bg-orange-500/10 dark:bg-orange-500/15',
+    text: 'text-orange-500',
+    hoverBg: 'group-hover:bg-orange-500 group-hover:text-white',
+  },
+  'log-weight': {
+    bg: 'bg-purple-500/10 dark:bg-purple-500/15',
+    text: 'text-purple-500',
+    hoverBg: 'group-hover:bg-purple-500 group-hover:text-white',
+  },
+};
+
 export function QuickActions() {
   return (
-    <section>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">Quick actions</h2>
-        <p className="text-sm text-muted-foreground">Fast daily logging</p>
+    <section className="space-y-3">
+      <div className="flex items-end justify-between">
+        <div className="space-y-0.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            Logs
+          </span>
+          <h2 className="text-base font-extrabold tracking-tight text-foreground -mt-0.5">
+            Quick Actions
+          </h2>
+        </div>
+        <p className="text-xs text-muted-foreground/80 font-medium">Fast daily logging</p>
       </div>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {quickActions.map((action) => {
           const Icon = icons[action.iconName];
+          const theme = ACTION_THEMES[action.id] ?? {
+            bg: 'bg-primary/10',
+            text: 'text-primary',
+            hoverBg: 'group-hover:bg-primary group-hover:text-primary-foreground',
+          };
 
           return (
             <Link
               key={action.id}
-              className="group rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm transition-colors hover:border-primary/50 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.025)] transition-all duration-200 hover:-translate-y-0.5"
               to={action.href}
             >
-              <span className="inline-flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                <Icon className="size-5" aria-hidden="true" />
+              <span
+                className={`inline-flex size-10 items-center justify-center rounded-xl transition-all duration-200 ${theme.bg} ${theme.text} ${theme.hoverBg}`}
+              >
+                <Icon className="size-[22px]" aria-hidden="true" />
               </span>
-              <span className="mt-3 block text-sm font-semibold">{action.label}</span>
-              <span className="mt-1 block text-xs text-muted-foreground">{action.description}</span>
+              <span className="mt-4 block text-sm font-bold text-foreground leading-none">
+                {action.label}
+              </span>
+              <span className="mt-1.5 block text-xs text-muted-foreground/90 font-medium leading-none">
+                {action.description}
+              </span>
             </Link>
           );
         })}

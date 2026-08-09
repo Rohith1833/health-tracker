@@ -1,85 +1,83 @@
-import { Activity } from 'lucide-react';
-import { ActiveWorkout } from '@/features/workouts/components/active-workout';
-import { WorkoutHistory } from '@/features/workouts/components/workout-history';
-import {
-  ProgramStepper,
-  TodaysWorkoutPreview,
-} from '@/features/workouts/components/program-stepper';
-import { useActiveWorkout } from '@/features/workouts/hooks/use-workouts';
-import { useActiveEnrollment } from '@/features/workouts/hooks/use-workout-programs';
-import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { HomeWorkoutPrograms } from '@/features/workouts/components/home-workout-programs';
+import { HomeProgramDetails } from '@/features/workouts/components/home-program-details';
+import { HomeWorkoutPlayer } from '@/features/workouts/components/home-workout-player';
+import { HomeWorkoutHistory } from '@/features/workouts/components/home-workout-history';
+import { useStartHomeWorkout } from '@/features/workouts/hooks/use-home-workouts';
+import type { HomeWorkoutProgram } from '@/features/workouts/services/home-workout.api';
 
 export function WorkoutsPage() {
-  const { data: activeWorkout, isLoading: workoutLoading } = useActiveWorkout();
-  const { data: activeEnrollment, isLoading: enrollmentLoading } = useActiveEnrollment();
+  const [selectedProgram, setSelectedProgram] = useState<HomeWorkoutProgram | null>(null);
+  const [activeWorkout, setActiveWorkout] = useState<{
+    program: HomeWorkoutProgram;
+    historyId: string;
+  } | null>(null);
 
-  const isLoading = workoutLoading || enrollmentLoading;
+  const startMutation = useStartHomeWorkout();
 
-  // Determine which view to show on the left column
-  const showActiveWorkout = !!activeWorkout;
-  const showProgramPreview = !activeWorkout && !!activeEnrollment;
-  const showStepper = !activeWorkout && !activeEnrollment;
+  const handleStartWorkout = (program: HomeWorkoutProgram) => {
+    startMutation.mutate(program.id, {
+      onSuccess: (data) => {
+        setActiveWorkout({
+          program: data.program,
+          historyId: data.historyId,
+        });
+        setSelectedProgram(null);
+      },
+    });
+  };
+
+  if (activeWorkout) {
+    return (
+      <div className="max-w-3xl mx-auto py-4">
+        <HomeWorkoutPlayer
+          program={activeWorkout.program}
+          historyId={activeWorkout.historyId}
+          onClose={() => setActiveWorkout(null)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <section className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <section className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between border-b border-border/60 pb-5">
         <div>
-          <div className="flex items-center gap-2 text-primary">
-            <Activity className="size-5" />
-            <p className="text-sm font-medium">Workouts</p>
-          </div>
-          <h1 className="mt-1 text-3xl font-semibold tracking-normal">
-            {showActiveWorkout
-              ? 'Active Session'
-              : showProgramPreview
-                ? "Today's Workout"
-                : 'Find Your Program'}
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            Home Workouts
+          </span>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-foreground">
+            {selectedProgram ? 'Program Details' : 'Guided Workout System'}
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {showActiveWorkout
-              ? 'Your workout is in progress. Keep going!'
-              : showProgramPreview
-                ? "Follow your program's schedule for today."
-                : 'Choose a program that fits your goals and start training.'}
+          <p className="mt-1.5 text-sm text-muted-foreground/90 font-medium">
+            {selectedProgram
+              ? 'Review the exercises and outline before you start your session.'
+              : 'Choose from professional home-friendly workout routines and build consistency.'}
           </p>
         </div>
       </section>
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Active Workout / Program Preview / Stepper */}
-        <div className="lg:col-span-7">
-          {isLoading ? (
-            <div className="flex h-64 items-center justify-center rounded-xl border border-dashed bg-card">
-              <Loader2 className="size-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : showActiveWorkout ? (
-            <ActiveWorkout />
-          ) : showProgramPreview ? (
-            <TodaysWorkoutPreview
-              onStart={() => {
-                // useStartProgramDay populates activeWorkout cache → triggers re-render
-              }}
-              onQuit={() => {
-                // enrollment cache is cleared → stepper shown
-              }}
+        {/* Left Column: Details or Library */}
+        <div className="lg:col-span-8">
+          {selectedProgram ? (
+            <HomeProgramDetails
+              program={selectedProgram}
+              onBack={() => setSelectedProgram(null)}
+              onStart={() => handleStartWorkout(selectedProgram)}
+              isStarting={startMutation.isPending}
             />
           ) : (
-            <div className="space-y-4">
-              <ProgramStepper
-                onEnrolled={() => {
-                  // enrollment cache invalidated → program preview shown
-                }}
-              />
-            </div>
+            <HomeWorkoutPrograms onSelectProgram={setSelectedProgram} />
           )}
         </div>
 
-        {/* Right Column: History */}
-        <div className="lg:col-span-5">
-          <h2 className="text-xl font-semibold mb-4">Past Sessions</h2>
-          <WorkoutHistory />
+        {/* Right Column: Workout History (Hidden when looking at details on small screens) */}
+        <div className={`lg:col-span-4 ${selectedProgram ? 'hidden lg:block' : ''}`}>
+          <h2 className="text-lg font-bold text-foreground mb-4">Past Sessions</h2>
+          <HomeWorkoutHistory />
         </div>
       </div>
     </div>

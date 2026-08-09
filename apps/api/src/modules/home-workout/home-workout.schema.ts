@@ -18,7 +18,15 @@ export const listExercisesQuerySchema = z.object({
   difficulty: z.nativeEnum(Difficulty).optional(),
   bodyPart: z.string().optional(),
   muscleGroup: z.string().optional(),
+  equipment: z.string().optional(),
   search: z.string().optional(),
+  sortBy: z.enum(['name', 'createdAt']).default('name'),
+  sortOrder: z.enum(['asc', 'desc']).default('asc'),
+});
+
+export const favoritesQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(20),
 });
 
 export const historyQuerySchema = z.object({

@@ -3,6 +3,7 @@ import * as homeWorkoutService from './home-workout.service.js';
 import {
   listProgramsQuerySchema,
   listExercisesQuerySchema,
+  favoritesQuerySchema,
   historyQuerySchema,
   startWorkoutSchema,
   finishWorkoutSchema,
@@ -12,8 +13,9 @@ import {
 
 export const listExercises = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const userId = req.user?.id;
     const options = listExercisesQuerySchema.parse(req.query);
-    const result = await homeWorkoutService.listExercises(options);
+    const result = await homeWorkoutService.listExercises(options, userId);
     res.json(result);
   } catch (error) {
     next(error);
@@ -22,13 +24,51 @@ export const listExercises = async (req: Request, res: Response, next: NextFunct
 
 export const getExerciseById = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const userId = req.user?.id;
     const id = String(req.params['id']);
-    const exercise = await homeWorkoutService.getExerciseById(id);
+    const exercise = await homeWorkoutService.getExerciseById(id, userId);
     if (!exercise) {
       res.status(404).json({ error: 'Exercise not found' });
       return;
     }
     res.json(exercise);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFavorites = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const options = favoritesQuerySchema.parse(req.query);
+    const result = await homeWorkoutService.getFavorites(userId, options);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addFavorite = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const id = String(req.params['id']);
+    const result = await homeWorkoutService.addFavorite(userId, id);
+    res.json(result);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'EXERCISE_NOT_FOUND') {
+      res.status(404).json({ error: 'Exercise not found' });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const removeFavorite = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const id = String(req.params['id']);
+    const result = await homeWorkoutService.removeFavorite(userId, id);
+    res.json(result);
   } catch (error) {
     next(error);
   }
@@ -127,6 +167,16 @@ export const getStats = async (req: Request, res: Response, next: NextFunction) 
         lastWorkoutDate: null,
       },
     );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRecommendations = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user!.id;
+    const result = await homeWorkoutService.getRecommendations(userId);
+    res.json(result);
   } catch (error) {
     next(error);
   }

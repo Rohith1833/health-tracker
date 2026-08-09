@@ -1,5 +1,6 @@
 import { prisma } from '../../lib/prisma.js';
 import { calculateBmi, getBmiCategory } from '../bmi/bmi.utils.js';
+import { syncSystemChecklistForDate } from '../checklist/checklist.service.js';
 
 function toDateOnly(value?: string) {
   if (!value) return new Date(new Date().toISOString().slice(0, 10));
@@ -34,6 +35,9 @@ export async function getDashboardToday(userId: string, dateInput?: string) {
   const weekStart = startOfWeek(date);
   const weekEnd = addDays(weekStart, 7);
 
+  // Sync checklist items/completions first to ensure aggregates are fresh
+  await syncSystemChecklistForDate(userId, date);
+
   const [
     settings,
     latestWeight,
@@ -42,6 +46,8 @@ export async function getDashboardToday(userId: string, dateInput?: string) {
     waterTotal,
     sleepLog,
     workouts,
+    homeWorkouts,
+    homeStats,
     meals,
     checklist,
     completedChecklist,
@@ -68,6 +74,21 @@ export async function getDashboardToday(userId: string, dateInput?: string) {
       where: { userId, deletedAt: null, logDate: date },
       _count: { id: true },
       _sum: { durationMinutes: true, caloriesBurned: true },
+    }),
+    prisma.userWorkoutHistory.aggregate({
+      where: {
+        userId,
+        status: 'COMPLETED',
+        completedAt: {
+          gte: date,
+          lt: addDays(date, 1),
+        },
+      },
+      _count: { id: true },
+      _sum: { duration: true, calories: true },
+    }),
+    prisma.userWorkoutStats.findUnique({
+      where: { userId },
     }),
     prisma.mealLog.findMany({
       where: { userId, deletedAt: null, logDate: date },
@@ -137,10 +158,12 @@ export async function getDashboardToday(userId: string, dateInput?: string) {
       proteinG: Number(totalProteinG.toFixed(1)),
     },
     workout: {
-      completed: workouts._count.id > 0,
-      totalSessions: workouts._count.id,
-      durationMinutes: workouts._sum.durationMinutes ?? 0,
-      caloriesBurned: workouts._sum.caloriesBurned ?? 0,
+      completed: workouts._count.id + (homeWorkouts._count.id || 0) > 0,
+      totalSessions: workouts._count.id + (homeWorkouts._count.id || 0),
+      durationMinutes:
+        (workouts._sum.durationMinutes ?? 0) + Math.round((homeWorkouts._sum.duration ?? 0) / 60),
+      caloriesBurned: (workouts._sum.caloriesBurned ?? 0) + (homeWorkouts._sum.calories ?? 0),
+      streak: homeStats?.currentStreak ?? 0,
     },
     checklist: {
       completed: checklistCompleted,
@@ -156,7 +179,10 @@ export async function getDashboardToday(userId: string, dateInput?: string) {
             100,
         ),
       ),
-      workouts: Math.min(100, Math.round((workouts._count.id / 5) * 100)),
+      workouts: Math.min(
+        100,
+        Math.round(((workouts._count.id + (homeWorkouts._count.id || 0)) / 5) * 100),
+      ),
       sleep: sleepLog?.durationMinutes
         ? Math.min(100, Math.round((sleepLog.durationMinutes / sleepGoalMinutes) * 100))
         : 0,

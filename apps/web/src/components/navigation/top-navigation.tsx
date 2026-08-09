@@ -14,10 +14,10 @@ export function TopNavigation({ onOpenMobileMenu }: TopNavigationProps) {
   const { logout, user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
-      <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur-md">
+      <div className="flex h-16 items-center gap-4 px-4 sm:px-6 lg:px-8">
         <button
-          className="inline-flex size-10 items-center justify-center rounded-md border border-border bg-background lg:hidden"
+          className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground transition-colors lg:hidden"
           type="button"
           aria-label="Open navigation menu"
           onClick={onOpenMobileMenu}
@@ -26,37 +26,45 @@ export function TopNavigation({ onOpenMobileMenu }: TopNavigationProps) {
         </button>
 
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium uppercase text-muted-foreground">Health Tracker</p>
-          <h2 className="truncate text-lg font-semibold">{currentRoute?.title ?? 'Workspace'}</h2>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
+            Workspace
+          </span>
+          <h2 className="text-base font-bold tracking-tight text-foreground -mt-0.5">
+            {currentRoute?.title ?? 'Overview'}
+          </h2>
         </div>
 
-        <button
-          className="hidden size-10 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground sm:inline-flex"
-          type="button"
-          aria-label="Open notifications"
-          title="Notifications"
-        >
-          <Bell className="size-4" aria-hidden="true" />
-        </button>
-
-        <ThemeSwitch />
-
-        <div className="hidden min-w-0 items-center gap-3 rounded-md border border-border bg-card px-3 py-2 md:flex">
-          <div className="min-w-0 text-right">
-            <p className="truncate text-sm font-medium">
-              {user?.user_metadata?.name ?? 'Signed in'}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
-          </div>
+        <div className="flex items-center gap-2">
           <button
-            className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="hidden size-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
             type="button"
-            aria-label="Logout"
-            title="Logout"
-            onClick={() => void logout()}
+            aria-label="Open notifications"
+            title="Notifications"
           >
-            <LogOut className="size-4" aria-hidden="true" />
+            <Bell className="size-4" aria-hidden="true" />
           </button>
+
+          <ThemeSwitch />
+
+          <div className="flex items-center gap-3 border-l border-border pl-3 ml-1">
+            <div className="hidden flex-col text-right md:flex">
+              <span className="text-xs font-semibold text-foreground">
+                {user?.user_metadata?.name ?? 'Signed In'}
+              </span>
+              <span className="text-[10px] text-muted-foreground tracking-tight">
+                {user?.email}
+              </span>
+            </div>
+            <button
+              className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:text-red-500 hover:border-red-500/20 hover:bg-red-500/5 transition-all duration-150"
+              type="button"
+              aria-label="Logout"
+              title="Logout"
+              onClick={() => void logout()}
+            >
+              <LogOut className="size-4" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </div>
     </header>

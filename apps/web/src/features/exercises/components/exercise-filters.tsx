@@ -1,16 +1,18 @@
 import { useCallback, useId } from 'react';
 import { Search, X } from 'lucide-react';
-import { useExerciseCategories, useExerciseDifficulties } from '../hooks/use-exercises';
-import type { ExerciseCategory, Difficulty } from '../types/exercise.types';
+import { useExerciseDifficulties } from '../hooks/use-exercises';
+import type { Difficulty } from '../types/exercise.types';
 
 type ExerciseFiltersProps = {
   search: string;
-  category: ExerciseCategory | '';
+  bodyPart: string;
   difficulty: Difficulty | '';
+  equipment: string;
   muscleGroup: string;
   onSearchChange: (v: string) => void;
-  onCategoryChange: (v: ExerciseCategory | '') => void;
+  onBodyPartChange: (v: string) => void;
   onDifficultyChange: (v: Difficulty | '') => void;
+  onEquipmentChange: (v: string) => void;
   onMuscleGroupChange: (v: string) => void;
   onReset: () => void;
 };
@@ -19,41 +21,57 @@ function formatLabel(value: string): string {
   return value.charAt(0) + value.slice(1).toLowerCase();
 }
 
-const COMMON_MUSCLES = [
+const BODY_PARTS = [
+  'Warm-up',
   'Chest',
   'Back',
   'Shoulders',
-  'Biceps',
-  'Triceps',
+  'Arms',
   'Core',
-  'Quadriceps',
-  'Hamstrings',
+  'Legs',
+  'Cardio',
+  'Stretching',
+  'HIIT',
+  'Mobility',
+  'Cool Down',
+];
+
+const EQUIPMENT_OPTIONS = ['none', 'chair', 'wall', 'towel', 'resistance band'];
+
+const MUSCLE_GROUPS = [
+  'Chest',
+  'Back',
+  'Shoulders',
+  'Core',
+  'Legs',
+  'Arms',
   'Glutes',
-  'Calves',
-  'Lats',
-  'Obliques',
+  'Cardio',
+  'Stretch',
 ];
 
 export function ExerciseFilters({
   search,
-  category,
+  bodyPart,
   difficulty,
+  equipment,
   muscleGroup,
   onSearchChange,
-  onCategoryChange,
+  onBodyPartChange,
   onDifficultyChange,
+  onEquipmentChange,
   onMuscleGroupChange,
   onReset,
 }: ExerciseFiltersProps) {
   const searchId = useId();
-  const categoryId = useId();
+  const bodyPartId = useId();
   const difficultyId = useId();
+  const equipmentId = useId();
   const muscleId = useId();
 
-  const { data: categories = [] } = useExerciseCategories();
   const { data: difficulties = [] } = useExerciseDifficulties();
 
-  const hasActiveFilters = search || category || difficulty || muscleGroup;
+  const hasActiveFilters = search || bodyPart || difficulty || equipment || muscleGroup;
 
   const selectClass =
     'w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1';
@@ -62,7 +80,7 @@ export function ExerciseFilters({
 
   return (
     <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {/* Search */}
         <div className="relative sm:col-span-2 lg:col-span-1">
           <label htmlFor={searchId} className="sr-only">
@@ -92,21 +110,21 @@ export function ExerciseFilters({
           )}
         </div>
 
-        {/* Category */}
+        {/* Body Part */}
         <div>
-          <label htmlFor={categoryId} className="sr-only">
-            Category
+          <label htmlFor={bodyPartId} className="sr-only">
+            Body Part
           </label>
           <select
-            id={categoryId}
-            value={category}
-            onChange={(e) => onCategoryChange(e.target.value as ExerciseCategory | '')}
+            id={bodyPartId}
+            value={bodyPart}
+            onChange={(e) => onBodyPartChange(e.target.value)}
             className={selectClass}
           >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {formatLabel(cat)}
+            <option value="">All Body Parts</option>
+            {BODY_PARTS.map((bp) => (
+              <option key={bp} value={bp}>
+                {bp}
               </option>
             ))}
           </select>
@@ -132,6 +150,26 @@ export function ExerciseFilters({
           </select>
         </div>
 
+        {/* Equipment */}
+        <div>
+          <label htmlFor={equipmentId} className="sr-only">
+            Equipment
+          </label>
+          <select
+            id={equipmentId}
+            value={equipment}
+            onChange={(e) => onEquipmentChange(e.target.value)}
+            className={selectClass}
+          >
+            <option value="">All Equipment</option>
+            {EQUIPMENT_OPTIONS.map((eq) => (
+              <option key={eq} value={eq}>
+                {formatLabel(eq)}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Muscle group */}
         <div>
           <label htmlFor={muscleId} className="sr-only">
@@ -144,7 +182,7 @@ export function ExerciseFilters({
             className={selectClass}
           >
             <option value="">All Muscles</option>
-            {COMMON_MUSCLES.map((m) => (
+            {MUSCLE_GROUPS.map((m) => (
               <option key={m} value={m}>
                 {m}
               </option>

@@ -37,13 +37,13 @@ function buildMetrics(dashboard: DashboardToday): DashboardMetric[] {
       id: 'calories',
       label: "Today's Calories",
       value: dashboard.nutrition.calories.toLocaleString(),
-      detail: `${Math.max(0, dashboard.nutrition.goal - dashboard.nutrition.calories).toLocaleString()} calories remaining`,
+      detail: `${Math.max(0, dashboard.nutrition.goal - dashboard.nutrition.calories).toLocaleString()} remaining`,
       trend: `${dashboard.nutrition.proteinG}g protein`,
       iconName: 'flame',
     },
     {
       id: 'sleep',
-      label: 'Sleep',
+      label: 'Sleep Quality',
       value: formatMinutes(dashboard.sleep.durationMinutes),
       detail:
         dashboard.sleep.qualityRating === null
@@ -59,16 +59,23 @@ export function MetricsGrid({ dashboard }: { dashboard: DashboardToday }) {
   const metrics = buildMetrics(dashboard);
 
   return (
-    <section>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">Today at a glance</h2>
+    <section className="space-y-3">
+      <div className="flex items-end justify-between">
+        <div className="space-y-0.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            Activity
+          </span>
+          <h2 className="text-base font-extrabold tracking-tight text-foreground -mt-0.5">
+            Today at a glance
+          </h2>
+        </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
           <Link
             key={metric.id}
             to={`/${metric.id === 'calories' ? 'meals' : metric.id}`}
-            className="block transition-transform hover:scale-[1.02]"
+            className="block transition-all duration-200 hover:-translate-y-0.5"
           >
             <MetricCard metric={metric} />
           </Link>

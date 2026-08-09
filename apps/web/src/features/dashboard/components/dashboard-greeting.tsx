@@ -14,23 +14,25 @@ export function DashboardGreeting() {
   const displayName = getDisplayName(user?.email, user?.user_metadata?.name as string | undefined);
   const today = new Intl.DateTimeFormat(undefined, {
     weekday: 'long',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
   }).format(new Date());
 
   return (
-    <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <section className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-border/60 pb-5">
       <div>
-        <p className="text-sm font-medium text-primary">Welcome back</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-normal text-foreground">
-          Hi, {displayName}
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Workspace Overview
+        </span>
+        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-foreground">
+          Hello, {displayName}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Keep today simple: log the basics and protect your streak.
+        <p className="mt-1 text-sm text-muted-foreground/90">
+          Stay consistent today: track your routines and hit your goals.
         </p>
       </div>
-      <div className="inline-flex w-fit items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm text-muted-foreground">
-        <CalendarDays className="size-4 text-primary" aria-hidden="true" />
+      <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-muted-foreground shadow-sm">
+        <CalendarDays className="size-4 text-muted-foreground/80" aria-hidden="true" />
         <span>{today}</span>
       </div>
     </section>

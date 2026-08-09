@@ -29,10 +29,12 @@ model AppUser {
   workoutSessions      WorkoutSession[]
   mealLogs             MealLog[]
   checklistCompletions ChecklistCompletion[]
+  checklistItems       ChecklistItem[]
   exerciseFavorites    ExerciseFavorite[]
   userWorkoutPrograms  UserWorkoutProgram[]
   userWorkoutHistory   UserWorkoutHistory[]
   userWorkoutStats     UserWorkoutStats?
+  homeExerciseFavorites HomeExerciseFavorite[]
 
   @@map("app_users")
 }
@@ -227,17 +229,55 @@ model MealEntry {
   @@index([mealLogId])
   @@map("meal_entries")
 }
+enum ChecklistItemCategory {
+  WATER
+  SLEEP
+  WEIGHT
+  WORKOUT
+  NUTRITION
+  CUSTOM
+}
+
+enum ChecklistSystemKey {
+  WATER_GOAL
+  SLEEP_LOG
+  WEIGHT_LOG
+  WORKOUT_SESSION
+  NUTRITION_LOG
+}
+
+model ChecklistItem {
+  id        String                @id @default(uuid()) @db.Uuid
+  userId    String                @map("user_id") @db.Uuid
+  title     String                @db.VarChar(255)
+  category  ChecklistItemCategory @default(CUSTOM)
+  systemKey ChecklistSystemKey?   @map("system_key")
+  sortOrder Int                   @default(0) @map("sort_order")
+  isActive  Boolean               @default(true) @map("is_active")
+  createdAt DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user        AppUser               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions ChecklistCompletion[]
+
+  @@unique([userId, systemKey], name: "user_system_key_unique")
+  @@index([userId, sortOrder])
+  @@map("checklist_items")
+}
 
 model ChecklistCompletion {
-  id             String   @id @default(uuid()) @db.Uuid
-  userId         String   @map("user_id") @db.Uuid
-  completionDate DateTime @map("completion_date") @db.Date
-  isCompleted    Boolean  @default(false) @map("is_completed")
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  checklistItemId String   @map("checklist_item_id") @db.Uuid
+  completionDate  DateTime @map("completion_date") @db.Date
+  isCompleted     Boolean  @default(false) @map("is_completed")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  user AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          AppUser       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checklistItem ChecklistItem @relation(fields: [checklistItemId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, checklistItemId, completionDate], name: "user_item_date_unique")
   @@index([userId, completionDate])
   @@map("checklist_completions")
 }
@@ -411,6 +451,7 @@ model HomeExercise {
 
   muscleGroups     HomeExerciseMuscleGroup[]
   programExercises HomeWorkoutProgramExercise[]
+  favorites        HomeExerciseFavorite[]
 
   @@index([slug])
   @@index([difficulty])
@@ -518,3 +559,15 @@ model UserWorkoutStats {
   @@map("user_workout_stats")
 }
 
+model HomeExerciseFavorite {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  exerciseId String   @map("exercise_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user     AppUser      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise HomeExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+  @@map("home_exercise_favorites")
+}

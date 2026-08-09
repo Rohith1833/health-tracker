@@ -8,6 +8,7 @@ import { WaterPage } from '@/pages/water-page';
 import { SleepPage } from '@/pages/sleep-page';
 import { ExercisesPage } from '@/pages/exercises-page';
 import { WorkoutsPage } from '@/pages/workouts-page';
+import { ChecklistPage } from '@/pages/checklist-page';
 import { ProtectedLayout } from '@/layouts/app-shell/protected-layout';
 import { AuthCallbackPage } from '@/pages/auth-callback-page';
 import { LoginPage } from '@/pages/login-page';
@@ -33,6 +34,7 @@ export function AppRouter() {
           <Route path="/sleep" element={<SleepPage />} />
           <Route path="/exercises" element={<ExercisesPage />} />
           <Route path="/workouts" element={<WorkoutsPage />} />
+          <Route path="/checklist" element={<ChecklistPage />} />
           {appRoutes
             .filter(
               (route) =>
@@ -44,6 +46,7 @@ export function AppRouter() {
                   '/sleep',
                   '/exercises',
                   '/workouts',
+                  '/checklist',
                 ].includes(route.path),
             )
             .map((route) => (

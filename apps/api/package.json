@@ -9,7 +9,14 @@
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit --pretty false",
     "seed-exercises": "tsx prisma/seed-exercises.ts",
-    "seed-programs": "tsx prisma/seed-programs.ts"
+    "seed-home-exercises": "tsx prisma/seed-home-exercises.ts",
+    "seed-home-programs": "tsx prisma/seed-home-programs.ts",
+    "seed-programs": "tsx prisma/seed-programs.ts",
+    "prisma:validate": "prisma validate",
+    "prisma:generate": "prisma generate",
+    "prisma:db-push": "prisma db push",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:status": "prisma migrate status"
   },
   "dependencies": {
     "@prisma/client": "^6.12.0",

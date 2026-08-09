@@ -8,21 +8,25 @@ export function WaterPage() {
   const { summary, isLoading, isMutating, error, addWater, removeWater } = useWaterTracking();
 
   return (
-    <div className="space-y-6">
-      <section className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="space-y-8">
+      <section className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between border-b border-border/60 pb-5">
         <div>
-          <p className="text-sm font-medium text-primary">Water tracking</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-normal">
-            Track your daily hydration
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            Water Tracking
+          </span>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-foreground">
+            Daily Hydration
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Stay hydrated and log your water intake.
+          <p className="mt-1.5 text-sm text-muted-foreground/90 font-medium">
+            Track your water consumption and meet your daily hydration target.
           </p>
         </div>
       </section>
 
       {error ? (
-        <div className="rounded-md bg-destructive/15 p-4 text-sm text-destructive">{error}</div>
+        <div className="flex gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 p-4 text-xs font-semibold text-destructive animate-fade-in">
+          {error}
+        </div>
       ) : null}
 
       {isLoading && !summary ? (
@@ -33,7 +37,7 @@ export function WaterPage() {
         <div className="grid gap-6 md:grid-cols-2">
           {/* Left Column: Progress Ring and History */}
           <div className="space-y-6">
-            <section className="flex justify-center rounded-lg border border-border bg-card p-8 shadow-sm">
+            <section className="flex justify-center rounded-2xl border border-border bg-card p-8 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
               <WaterProgressRing
                 progress={summary.progress}
                 consumedMl={summary.consumedMl}

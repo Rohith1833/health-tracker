@@ -11,42 +11,51 @@ export function TodaySummaryCard({ dashboard }: { dashboard: DashboardToday }) {
   );
 
   return (
-    <section className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm sm:p-6">
-      <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">Today's summary</p>
-          <h2 className="mt-2 text-2xl font-semibold">{completion}% complete</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+    <section className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            Daily Progress
+          </span>
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+            {completion}% Complete
+          </h2>
+          <p className="text-xs text-muted-foreground/90 font-medium">
             {dashboard.checklist.completed} of {dashboard.checklist.total} checklist items are done
             today.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:min-w-72">
-          <div className="rounded-md border border-border bg-background p-4">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <CheckCircle2 className="size-4 text-primary" aria-hidden="true" />
-              Tasks
+        <div className="grid grid-cols-2 gap-4 sm:min-w-80">
+          <div className="rounded-xl border border-border bg-background p-4 flex flex-col justify-between shadow-sm">
+            <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+              <CheckCircle2 className="size-4 text-emerald-500" aria-hidden="true" />
+              Checklist Tasks
             </div>
-            <p className="mt-2 text-2xl font-semibold">
+            <p className="mt-2 text-2xl font-extrabold tracking-tight text-foreground">
               {dashboard.checklist.completed}/{dashboard.checklist.total}
             </p>
           </div>
-          <div className="rounded-md border border-border bg-background p-4">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Flame className="size-4 text-primary" aria-hidden="true" />
-              Workout
+          <div className="rounded-xl border border-border bg-background p-4 flex flex-col justify-between shadow-sm">
+            <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+              <Flame className="size-4 text-orange-500" aria-hidden="true" />
+              Today's Workouts
             </div>
-            <p className="mt-2 text-2xl font-semibold">{dashboard.workout.totalSessions}</p>
+            <p className="mt-2 text-2xl font-extrabold tracking-tight text-foreground">
+              {dashboard.workout.totalSessions}
+            </p>
           </div>
         </div>
       </div>
 
       <div
-        className="mt-5 h-2 overflow-hidden rounded-full bg-muted"
+        className="mt-6 h-2.5 overflow-hidden rounded-full bg-muted"
         aria-label="Daily completion progress"
       >
-        <div className="h-full rounded-full bg-primary" style={{ width: `${completion}%` }} />
+        <div
+          className="h-full rounded-full bg-primary transition-all duration-500"
+          style={{ width: `${completion}%` }}
+        />
       </div>
     </section>
   );

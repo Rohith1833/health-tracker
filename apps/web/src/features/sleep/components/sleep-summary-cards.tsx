@@ -9,7 +9,7 @@ export function SleepSummaryCards({ summary }: { summary: SleepSummary }) {
   };
 
   const getQualityDisplay = (rating: number | null) => {
-    if (!rating) return '—\nNo ratings yet';
+    if (!rating) return '—\nNo ratings';
     const num = Math.round(rating);
     const stars = '★'.repeat(num) + '☆'.repeat(5 - num);
     const labels = ['Very Poor', 'Poor', 'Fair', 'Good', 'Excellent'];
@@ -34,20 +34,28 @@ export function SleepSummaryCards({ summary }: { summary: SleepSummary }) {
   ];
 
   return (
-    <section className="grid gap-3 sm:grid-cols-3">
+    <section className="grid gap-4 sm:grid-cols-3">
       {cards.map((card) => (
         <article
           key={card.label}
-          className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm"
+          className="rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.02)] transition-all duration-200"
         >
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
-            <Moon className="size-4 text-primary" aria-hidden="true" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              {card.label}
+            </span>
+            <span className="inline-flex size-7 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500">
+              <Moon className="size-4" aria-hidden="true" />
+            </span>
           </div>
           {card.isMultiline ? (
-            <p className="mt-3 text-lg font-semibold whitespace-pre-line">{card.value}</p>
+            <p className="mt-3.5 text-base font-extrabold tracking-tight whitespace-pre-line text-foreground leading-relaxed">
+              {card.value}
+            </p>
           ) : (
-            <p className="mt-3 text-2xl font-semibold tabular-nums">{card.value}</p>
+            <p className="mt-3.5 text-2xl font-extrabold tracking-tight tabular-nums text-foreground">
+              {card.value}
+            </p>
           )}
         </article>
       ))}

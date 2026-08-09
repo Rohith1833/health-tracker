@@ -9,6 +9,7 @@ import { exercisesRouter } from '../modules/exercises/exercises.routes.js';
 import { workoutsRouter } from '../modules/workouts/workouts.routes.js';
 import { workoutProgramsRouter } from '../modules/workout-programs/workout-programs.routes.js';
 import { homeWorkoutRouter } from '../modules/home-workout/home-workout.routes.js';
+import { checklistRouter } from '../modules/checklist/checklist.routes.js';
 
 export const apiRouter = Router();
 
@@ -21,6 +22,8 @@ apiRouter.use('/exercises', exercisesRouter);
 apiRouter.use('/workouts', workoutsRouter);
 apiRouter.use('/workout-programs', workoutProgramsRouter);
 apiRouter.use('/home-workout', homeWorkoutRouter);
+apiRouter.use('/workout', homeWorkoutRouter);
+apiRouter.use('/checklist', checklistRouter);
 apiRouter.get('/health', (_request, response) => {
   response.status(200).json({ success: true, data: { status: 'ok', environment: env.NODE_ENV } });
 });

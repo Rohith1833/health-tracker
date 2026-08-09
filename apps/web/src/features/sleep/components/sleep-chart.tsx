@@ -28,53 +28,62 @@ export function SleepChart({ logs }: SleepChartProps) {
 
   if (chartData.length === 0) {
     return (
-      <section className="flex min-h-[300px] flex-col items-center justify-center rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm">
-        <p className="text-sm text-muted-foreground">Add sleep logs to see your trend chart.</p>
+      <section className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+        <p className="text-xs font-semibold text-muted-foreground">
+          Add sleep logs to see your trend chart.
+        </p>
       </section>
     );
   }
 
   return (
-    <section className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm">
-      <h2 className="mb-6 text-lg font-semibold">Sleep Duration Trend</h2>
+    <section className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
+      <div className="mb-5">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Analytics
+        </span>
+        <h2 className="text-lg font-extrabold tracking-tight text-foreground mt-0.5">
+          Sleep Duration Trend
+        </h2>
+        <p className="text-xs text-muted-foreground/90 font-medium mt-1">
+          Daily hours logged over the last 14 logs
+        </p>
+      </div>
+
       <div className="h-[250px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
-              stroke="currentColor"
-              opacity={0.1}
+              stroke="var(--border)"
+              opacity={0.4}
             />
             <XAxis
               dataKey="dateStr"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 12, fill: 'currentColor', opacity: 0.7 }}
+              tick={{ fontSize: 11, fill: '#888888' }}
               dy={10}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 12, fill: 'currentColor', opacity: 0.7 }}
+              tick={{ fontSize: 11, fill: '#888888' }}
               dx={-10}
             />
             <Tooltip
-              cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
+              cursor={{ fill: 'var(--secondary)', opacity: 0.4 }}
               contentStyle={{
-                backgroundColor: 'hsl(var(--card))',
-                borderColor: 'hsl(var(--border))',
-                borderRadius: '0.5rem',
-                color: 'hsl(var(--foreground))',
+                backgroundColor: 'var(--card)',
+                borderColor: 'var(--border)',
+                borderRadius: '12px',
+                fontSize: '12px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
               }}
               formatter={(value: any) => [`${value} hrs`, 'Duration']}
-              labelStyle={{
-                color: 'hsl(var(--foreground))',
-                fontWeight: 'bold',
-                marginBottom: '4px',
-              }}
             />
-            <Bar dataKey="hours" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} maxBarSize={50} />
+            <Bar dataKey="hours" fill="#8B5CF6" radius={[6, 6, 0, 0]} maxBarSize={30} />
           </BarChart>
         </ResponsiveContainer>
       </div>
