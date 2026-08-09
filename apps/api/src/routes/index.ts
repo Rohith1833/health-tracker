@@ -10,6 +10,14 @@ import { workoutsRouter } from '../modules/workouts/workouts.routes.js';
 import { workoutProgramsRouter } from '../modules/workout-programs/workout-programs.routes.js';
 import { homeWorkoutRouter } from '../modules/home-workout/home-workout.routes.js';
 import { checklistRouter } from '../modules/checklist/checklist.routes.js';
+import { mealsRouter } from '../modules/meals/meals.routes.js';
+import { calendarRouter } from '../modules/calendar/calendar.routes.js';
+import { profileRouter } from '../modules/profile/profile.routes.js';
+import { settingsRouter } from '../modules/settings/settings.routes.js';
+import { reportsRouter } from '../modules/reports/reports.routes.js';
+import { notificationsRouter } from '../modules/notifications/notifications.routes.js';
+import { exportRouter } from '../modules/export/export.routes.js';
+import { backupRouter } from '../modules/backup/backup.routes.js';
 
 export const apiRouter = Router();
 
@@ -24,6 +32,14 @@ apiRouter.use('/workout-programs', workoutProgramsRouter);
 apiRouter.use('/home-workout', homeWorkoutRouter);
 apiRouter.use('/workout', homeWorkoutRouter);
 apiRouter.use('/checklist', checklistRouter);
+apiRouter.use('/meals', mealsRouter);
+apiRouter.use('/calendar', calendarRouter);
+apiRouter.use('/profile', profileRouter);
+apiRouter.use('/settings', settingsRouter);
+apiRouter.use('/reports', reportsRouter);
+apiRouter.use('/notifications', notificationsRouter);
+apiRouter.use('/export', exportRouter);
+apiRouter.use('/backup', backupRouter);
 apiRouter.get('/health', (_request, response) => {
   response.status(200).json({ success: true, data: { status: 'ok', environment: env.NODE_ENV } });
 });

@@ -62,6 +62,13 @@ model UserSetting {
   dailyWaterGoalMl      Int       @default(2500) @map("daily_water_goal_ml")
   dailyCalorieGoal      Int?      @map("daily_calorie_goal")
   dailySleepGoalMinutes Int       @default(480) @map("daily_sleep_goal_minutes")
+  enableNotifications   Boolean   @default(true) @map("enable_notifications")
+  remindWater          Boolean   @default(true) @map("remind_water")
+  remindSleep          Boolean   @default(true) @map("remind_sleep")
+  remindWeight         Boolean   @default(true) @map("remind_weight")
+  remindWorkout        Boolean   @default(true) @map("remind_workout")
+  remindNutrition      Boolean   @default(true) @map("remind_nutrition")
+  remindChecklist      Boolean   @default(true) @map("remind_checklist")
   createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
   deletedAt             DateTime? @map("deleted_at") @db.Timestamptz(6)
@@ -210,17 +217,22 @@ model MealLog {
   user    AppUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
   entries MealEntry[]
 
+  @@unique([userId, mealType, logDate], name: "user_meal_date_unique")
   @@index([userId, logDate])
   @@map("meal_logs")
 }
 
 model MealEntry {
-  id        String  @id @default(uuid()) @db.Uuid
-  mealLogId String  @map("meal_log_id") @db.Uuid
-  calories  Decimal @default(0) @db.Decimal(8, 2)
-  proteinG  Decimal @default(0) @map("protein_g") @db.Decimal(8, 2)
-  carbsG    Decimal @default(0) @map("carbs_g") @db.Decimal(8, 2)
-  fatG      Decimal @default(0) @map("fat_g") @db.Decimal(8, 2)
+  id        String   @id @default(uuid()) @db.Uuid
+  mealLogId String   @map("meal_log_id") @db.Uuid
+  foodName  String   @map("food_name") @db.VarChar(255)
+  quantity  Decimal  @db.Decimal(8, 2)
+  unit      String   @default("serving") @db.VarChar(50)
+  calories  Decimal  @default(0) @db.Decimal(8, 2)
+  proteinG  Decimal  @default(0) @map("protein_g") @db.Decimal(8, 2)
+  carbsG    Decimal  @default(0) @map("carbs_g") @db.Decimal(8, 2)
+  fatG      Decimal  @default(0) @map("fat_g") @db.Decimal(8, 2)
+  sortOrder Int      @default(0) @map("sort_order")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 

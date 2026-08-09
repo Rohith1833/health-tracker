@@ -1,6 +1,7 @@
 import { prisma } from '../../lib/prisma.js';
 import { calculateBmi, getBmiCategory } from '../bmi/bmi.utils.js';
 import { syncSystemChecklistForDate } from '../checklist/checklist.service.js';
+import { calculateNutritionTotals } from '../meals/meals.service.js';
 
 function toDateOnly(value?: string) {
   if (!value) return new Date(new Date().toISOString().slice(0, 10));
@@ -113,16 +114,10 @@ export async function getDashboardToday(userId: string, dateInput?: string) {
   const waterGoalMl = settings?.dailyWaterGoalMl ?? 2500;
   const sleepGoalMinutes = settings?.dailySleepGoalMinutes ?? 480;
   const calorieGoal = settings?.dailyCalorieGoal ?? 2200;
-  const totalCalories = meals.reduce(
-    (total, meal) =>
-      total + meal.entries.reduce((entryTotal, entry) => entryTotal + Number(entry.calories), 0),
-    0,
-  );
-  const totalProteinG = meals.reduce(
-    (total, meal) =>
-      total + meal.entries.reduce((entryTotal, entry) => entryTotal + Number(entry.proteinG), 0),
-    0,
-  );
+  const allEntries = meals.flatMap((meal) => meal.entries);
+  const totals = calculateNutritionTotals(allEntries);
+  const totalCalories = totals.calories;
+  const totalProteinG = totals.proteinG;
   const waterMl = waterTotal._sum.amountMl ?? 0;
   const checklistTotal = checklist._count.id;
   const checklistCompleted = completedChecklist._count.id;

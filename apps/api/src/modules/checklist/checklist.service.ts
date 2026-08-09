@@ -35,7 +35,7 @@ export async function ensureSystemChecklistItemsExist(userId: string) {
       title: 'Log daily food intake',
       category: 'NUTRITION' as const,
       sortOrder: 5,
-      isActive: false, // Inactive until Nutrition flow is built
+      isActive: true,
     },
   ];
 
@@ -86,32 +86,36 @@ export async function syncSystemChecklistForDate(userId: string, date: Date) {
   const nextDay = new Date(date.getTime() + 24 * 60 * 60 * 1000);
 
   // 3. Query existing logs for the date in parallel
-  const [settings, waterTotal, sleepLog, weightLog, gymWorkout, homeWorkout] = await Promise.all([
-    prisma.userSetting.findUnique({ where: { userId } }),
-    prisma.waterLog.aggregate({
-      where: { userId, deletedAt: null, logDate: date },
-      _sum: { amountMl: true },
-    }),
-    prisma.sleepLog.findFirst({
-      where: { userId, deletedAt: null, logDate: date },
-    }),
-    prisma.weightLog.findFirst({
-      where: { userId, deletedAt: null, logDate: date },
-    }),
-    prisma.workoutSession.findFirst({
-      where: { userId, deletedAt: null, logDate: date, endTime: { not: null } },
-    }),
-    prisma.userWorkoutHistory.findFirst({
-      where: {
-        userId,
-        status: 'COMPLETED',
-        completedAt: {
-          gte: date,
-          lt: nextDay,
+  const [settings, waterTotal, sleepLog, weightLog, gymWorkout, homeWorkout, mealLog] =
+    await Promise.all([
+      prisma.userSetting.findUnique({ where: { userId } }),
+      prisma.waterLog.aggregate({
+        where: { userId, deletedAt: null, logDate: date },
+        _sum: { amountMl: true },
+      }),
+      prisma.sleepLog.findFirst({
+        where: { userId, deletedAt: null, logDate: date },
+      }),
+      prisma.weightLog.findFirst({
+        where: { userId, deletedAt: null, logDate: date },
+      }),
+      prisma.workoutSession.findFirst({
+        where: { userId, deletedAt: null, logDate: date, endTime: { not: null } },
+      }),
+      prisma.userWorkoutHistory.findFirst({
+        where: {
+          userId,
+          status: 'COMPLETED',
+          completedAt: {
+            gte: date,
+            lt: nextDay,
+          },
         },
-      },
-    }),
-  ]);
+      }),
+      prisma.mealLog.findFirst({
+        where: { userId, deletedAt: null, logDate: date, entries: { some: {} } },
+      }),
+    ]);
 
   const goalMl = settings?.dailyWaterGoalMl ?? 2500;
   const consumedWaterMl = waterTotal._sum.amountMl ?? 0;
@@ -122,7 +126,7 @@ export async function syncSystemChecklistForDate(userId: string, date: Date) {
     SLEEP_LOG: !!sleepLog,
     WEIGHT_LOG: !!weightLog,
     WORKOUT_SESSION: !!gymWorkout || !!homeWorkout,
-    NUTRITION_LOG: false,
+    NUTRITION_LOG: !!mealLog,
   };
 
   // 5. Upsert completions in the database

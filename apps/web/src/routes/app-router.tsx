@@ -9,6 +9,14 @@ import { SleepPage } from '@/pages/sleep-page';
 import { ExercisesPage } from '@/pages/exercises-page';
 import { WorkoutsPage } from '@/pages/workouts-page';
 import { ChecklistPage } from '@/pages/checklist-page';
+import { FoodPage } from '@/pages/food-page';
+import { CalendarPage } from '@/pages/calendar-page';
+import { ReportsPage } from '@/pages/reports-page';
+import { NotificationsPage } from '@/pages/notifications-page';
+import { ExportPage } from '@/pages/export-page';
+import { BackupPage } from '@/pages/backup-page';
+import { ProfilePage } from '@/pages/profile-page';
+import { SettingsPage } from '@/pages/settings-page';
 import { ProtectedLayout } from '@/layouts/app-shell/protected-layout';
 import { AuthCallbackPage } from '@/pages/auth-callback-page';
 import { LoginPage } from '@/pages/login-page';
@@ -35,6 +43,14 @@ export function AppRouter() {
           <Route path="/exercises" element={<ExercisesPage />} />
           <Route path="/workouts" element={<WorkoutsPage />} />
           <Route path="/checklist" element={<ChecklistPage />} />
+          <Route path="/food" element={<FoodPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/export" element={<ExportPage />} />
+          <Route path="/backup" element={<BackupPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           {appRoutes
             .filter(
               (route) =>
@@ -47,6 +63,14 @@ export function AppRouter() {
                   '/exercises',
                   '/workouts',
                   '/checklist',
+                  '/food',
+                  '/calendar',
+                  '/reports',
+                  '/notifications',
+                  '/export',
+                  '/backup',
+                  '/profile',
+                  '/settings',
                 ].includes(route.path),
             )
             .map((route) => (

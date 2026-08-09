@@ -74,7 +74,7 @@ export function MetricsGrid({ dashboard }: { dashboard: DashboardToday }) {
         {metrics.map((metric) => (
           <Link
             key={metric.id}
-            to={`/${metric.id === 'calories' ? 'meals' : metric.id}`}
+            to={`/${metric.id === 'calories' ? 'food' : metric.id}`}
             className="block transition-all duration-200 hover:-translate-y-0.5"
           >
             <MetricCard metric={metric} />
